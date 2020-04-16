@@ -85,7 +85,7 @@ namespace RibbonBimStarter
 
             panel.AddSeparator();
 
-            panel.AddItem(CreateButtonData("Rebar2", "CommandSetAllRebarAsBody"));
+            panel.AddItem(CreateButtonData("RebarVisibility", "Command"));
 
             PushButtonData dataAreaMark = CreateButtonData("AreaRebarMark", "CommandManualStart");
             PushButtonData dataHideRebars = CreateButtonData("RebarPresentation", "Command");
@@ -161,12 +161,12 @@ namespace RibbonBimStarter
             SplitButton splitHolesElev = panel
                 .AddItem(new SplitButtonData("HolesElevSplitButton", "Отверстия"))
                 as SplitButton;
-            PushButtonData pbdElevations = CreateButtonData("WeandrevitCommandsPanel", "LevelForHoles");
+            PushButtonData pbdElevations = CreateButtonData("RevitElementsElevation", "Command");
             pbdElevations.Text = "Определить\nотметки";
             splitHolesElev.AddPushButton(pbdElevations);
 
             splitHolesElev.AddSeparator();
-            PushButtonData pbdHolesSettings = CreateButtonData("WeandrevitCommandsPanel", "HolesSettings");
+            PushButtonData pbdHolesSettings = CreateButtonData("RevitElementsElevation", "CommandConfig");
             splitHolesElev.AddPushButton(pbdHolesSettings);
 
             PushButtonData pbdPropertiesCopy = CreateButtonData("PropertiesCopy", "CommandPropertiesCopy");
@@ -224,7 +224,7 @@ namespace RibbonBimStarter
             splitFamParam.AddPushButton(pbdAddParamToFamilyByAnalog);
 
             PushButtonData pbdRebarBds = CreateButtonData("RebarBDS", "Command");
-            PushButtonData pbdWorksets = CreateButtonData("WorksetsYay", "Command");
+            PushButtonData pbdWorksets = CreateButtonData("RevitWorksets", "Command");
             PushButtonData pbdFamiliesLibrary = CreateButtonData("TestDockable3", "CommandShowDockableWindow");
             panel.AddStackedItems(pbdRebarBds, pbdWorksets, pbdFamiliesLibrary);
         }
