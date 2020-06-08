@@ -128,11 +128,11 @@ namespace RibbonBimStarter
             PushButtonData pbdPrint = CreateButtonData("BatchPrintYay", "CommandBatchPrint");
             panel.AddItem(pbdPrint);
 
-            PushButtonData pbdColorize = CreateButtonData("BatchFilterCreation", "CommandViewColoring");
+            PushButtonData pbdColorize = CreateButtonData("RevitViewFilters", "CommandViewColoring");
             panel.AddItem(pbdColorize);
 
 
-            PushButtonData pbdWallHatch = CreateButtonData("BatchFilterCreation", "CommandWallHatch");
+            PushButtonData pbdWallHatch = CreateButtonData("RevitViewFilters", "CommandWallHatch");
             PushButtonData pbdOverrides = CreateButtonData("OverridesClear", "Command");
 
             SplitButtonData sbdFilters = new SplitButtonData("SplitButtonViewFilters", "Фильтры графики");
@@ -143,9 +143,9 @@ namespace RibbonBimStarter
             IList<RibbonItem> filterItems = panel.AddStackedItems(pbdOverrides, pbdWallHatch, sbdFilters);
 
             SplitButton sbFilters = filterItems[2] as SplitButton;
-            PushButtonData pbdCreateFilters = CreateButtonData("BatchFilterCreation", "CommandCreate");
+            PushButtonData pbdCreateFilters = CreateButtonData("RevitViewFilters", "CommandCreate");
             sbFilters.AddPushButton(pbdCreateFilters);
-            PushButtonData pbdDeleteFilters = CreateButtonData("BatchFilterCreation", "CommandBatchDelete");
+            PushButtonData pbdDeleteFilters = CreateButtonData("RevitViewFilters", "CommandBatchDelete");
             sbFilters.AddPushButton(pbdDeleteFilters);
 
             PushButtonData pbdOpenSheets = CreateButtonData("OpenSheets", "Command");
