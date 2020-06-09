@@ -129,7 +129,7 @@ namespace RibbonBimStarter
 
 
             PushButtonData pbdWallHatch = CreateButtonData("RevitViewFilters", "CommandWallHatch");
-            PushButtonData pbdOverrides = CreateButtonData("OverridesClear", "Command");
+            PushButtonData pbdOverrides = CreateButtonData("RevitGraphicsOverride", "Command");
 
             SplitButtonData sbdFilters = new SplitButtonData("SplitButtonViewFilters", "Фильтры графики");
 
