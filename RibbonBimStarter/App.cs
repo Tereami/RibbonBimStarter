@@ -10,17 +10,13 @@ as long as you credit the author by linking back and license your new creations 
 This code is provided 'as is'. Author disclaims any implied warranty.
 Zuev Aleksandr, 2020, all rigths reserved.*/
 #endregion
-
+#region Usings
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Threading.Tasks;
-using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using Autodesk.Revit.ApplicationServices;
 using System.Windows.Media.Imaging;
+#endregion
 
 namespace RibbonBimStarter
 {
@@ -65,7 +61,7 @@ namespace RibbonBimStarter
         {
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "About");
             panel.AddItem(CreateButtonData("AboutWeandrevit", "CommandAbout2"));
-            panel.AddItem(CreateButtonData("AskBimQuestion", "CommandAskBimQuestion"));
+            //panel.AddItem(CreateButtonData("AskBimQuestion", "CommandAskBimQuestion"));
         }
 
 
@@ -196,12 +192,18 @@ namespace RibbonBimStarter
             splitJoin.AddPushButton(pbdAutoCut);
             splitJoin.AddPushButton(CreateButtonData("AutoJoin", "CommandCreateCope"));
 
-            PushButtonData pbdParameterWriter = CreateButtonData("ParameterWriter", "Command");
+            
             PushButtonData pbdHost = CreateButtonData("PropertiesCopy", "CommandSelectHost");
-            PushButtonData pbdParts = CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam");
-            panel.AddStackedItems(pbdParameterWriter, pbdHost, pbdParts);
-
-
+            SplitButtonData sbdPiles = new SplitButtonData("Piles", "Сваи");
+            IList<RibbonItem> stacked1 = panel.AddStackedItems(pbdHost, sbdPiles);
+            
+            SplitButton splitPiles = stacked1[1] as SplitButton;
+            splitPiles.AddPushButton(CreateButtonData("PilesCoords", "PilesNumberingCommand"));
+            splitPiles.AddPushButton(CreateButtonData("PilesCoords", "PileCutCommand"));
+            splitPiles.AddPushButton(CreateButtonData("PilesCoords", "PilesElevationCommand"));
+            splitPiles.AddPushButton(CreateButtonData("PilesCoords", "PilesCalculateRangeCommand"));
+            splitPiles.AddSeparator();
+            splitPiles.AddPushButton(CreateButtonData("PilesCoords", "SettingsCommand"));
         }
 
 
@@ -213,20 +215,23 @@ namespace RibbonBimStarter
             SplitButtonData sbdAddParams = new SplitButtonData("FamilyParametersSplitButton", "Добавить параметры");
             PushButtonData pbdClearGuids = CreateButtonData("ClearUnusedGUIDs", "CommandClear");
             PushButtonData pbdFixSlowFile = CreateButtonData("FixSlowFile", "Command");
-
             IList<RibbonItem> stacked1 = panel.AddStackedItems(sbdAddParams, pbdClearGuids, pbdFixSlowFile);
 
             SplitButton splitFamParam = stacked1[0] as SplitButton;
-            PushButtonData pbdAddParamToFamily = CreateButtonData("ClearUnusedGUIDs", "CommandAddParameters");
-            splitFamParam.AddPushButton(pbdAddParamToFamily);
+            splitFamParam.AddPushButton(CreateButtonData("ClearUnusedGUIDs", "CommandAddParameters"));
+            splitFamParam.AddPushButton(CreateButtonData("ClearUnusedGUIDs", "CommandAddParamsByAnalog"));
 
-            PushButtonData pbdAddParamToFamilyByAnalog = CreateButtonData("ClearUnusedGUIDs", "CommandAddParamsByAnalog");
-            splitFamParam.AddPushButton(pbdAddParamToFamilyByAnalog);
 
-            PushButtonData pbdRebarBds = CreateButtonData("RebarBDS", "Command");
+
+            SplitButtonData sbdParametrization = new SplitButtonData("ModelParametrizationSplitButton", "Параметризация");
             PushButtonData pbdWorksets = CreateButtonData("RevitWorksets", "Command");
             PushButtonData pbdFamiliesLibrary = CreateButtonData("TestDockable3", "CommandShowDockableWindow");
-            panel.AddStackedItems(pbdRebarBds, pbdWorksets, pbdFamiliesLibrary);
+            IList<RibbonItem> stacked2 = panel.AddStackedItems(sbdParametrization, pbdWorksets, pbdFamiliesLibrary);
+
+            SplitButton splitParametrization = stacked2[0] as SplitButton;
+            splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "Command"));
+            splitParametrization.AddPushButton(CreateButtonData("RebarBDS", "Command"));
+            splitParametrization.AddPushButton(CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam"));
         }
 
 
