@@ -23,13 +23,43 @@ namespace RibbonBimStarter
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
     public class App : IExternalApplication
     {
-        public static string assemblyPath = typeof(App).Assembly.Location;
-        public static string assemblyFolder = Path.GetDirectoryName(assemblyPath);
-        public static string ribbonPath = Path.Combine(assemblyFolder, "RibbonBimStarterData");
+        public static string assemblyPath;
+        public static string assemblyFolder;
+        public static string ribbonPath;
 
         public Result OnStartup(UIControlledApplication application)
         {
-            string tabName = "Weandrevit";
+            assemblyPath = typeof(App).Assembly.Location;
+            assemblyFolder = Path.GetDirectoryName(assemblyPath);
+            ribbonPath = Path.Combine(assemblyFolder, "RibbonBimStarterData");
+
+            string messageFiles = "";
+            string[] addinFiles = System.IO.Directory.GetFiles(assemblyFolder, "*.addin");
+            List<string> oldWeandrevitAddins = new List<string> 
+            {
+                "WeandrevitPanel.addin", 
+                "BatchPrintYay.addin", 
+                "RebarSketch.addin", 
+                "RevitPlatesWeight.addin" 
+            };
+            foreach(string addinFile in addinFiles)
+            {
+                string fileTitle = System.IO.Path.GetFileName(addinFile);
+                if(oldWeandrevitAddins.Contains(fileTitle))
+                {
+                    messageFiles += fileTitle + ", ";
+                }
+            }
+            messageFiles = messageFiles.Substring(0, messageFiles.Length - 2);
+            if (messageFiles != "")
+            {
+                string msg = "Обнаружены устаревшие плагины Weandrevit. Закройте Revit, перейдите в папку ";
+                msg += assemblyFolder;
+                msg += " и удалите файлы: " + messageFiles;
+                TaskDialog.Show("Установка BIM-STARTER", msg);
+            }
+
+            string tabName = "BIM-STARTER";
             try { application.CreateRibbonTab(tabName); } catch { }
 
             try
@@ -232,6 +262,7 @@ namespace RibbonBimStarter
             splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("RebarBDS", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam"));
+            splitParametrization.AddPushButton(CreateButtonData("RevitPlatesWeight", "Command"));
         }
 
 
