@@ -47,10 +47,9 @@ namespace RibbonBimStarter
                 string fileTitle = System.IO.Path.GetFileName(addinFile);
                 if(oldWeandrevitAddins.Contains(fileTitle))
                 {
-                    messageFiles += fileTitle + ", ";
+                    messageFiles += fileTitle + " ";
                 }
             }
-            messageFiles = messageFiles.Substring(0, messageFiles.Length - 2);
             if (messageFiles != "")
             {
                 string msg = "Обнаружены устаревшие плагины Weandrevit. Закройте Revit, перейдите в папку ";
@@ -263,6 +262,7 @@ namespace RibbonBimStarter
             splitParametrization.AddPushButton(CreateButtonData("RebarBDS", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam"));
             splitParametrization.AddPushButton(CreateButtonData("RevitPlatesWeight", "Command"));
+            splitParametrization.AddPushButton(CreateButtonData("IngradParametrisation", "Cmd"));
         }
 
 
