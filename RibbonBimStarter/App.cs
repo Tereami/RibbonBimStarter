@@ -212,6 +212,10 @@ namespace RibbonBimStarter
             pbdAutoJoin.Text = "Авто\nсоединение";
             splitJoin.AddPushButton(pbdAutoJoin);
 
+            PushButtonData pbdJoinByOrder = CreateButtonData("AutoJoin", "CommandJoinByOrder");
+            pbdJoinByOrder.Text = "Задать\nприоритет";
+            splitJoin.AddPushButton(pbdJoinByOrder);
+
             PushButtonData pbdAutoUnjoin = CreateButtonData("AutoJoin", "CommandBatchUnjoin");
             pbdAutoUnjoin.Text = "Авто\nразделение";
             splitJoin.AddPushButton(pbdAutoUnjoin);
