@@ -3,12 +3,12 @@
 Разрешено использовать, распространять, изменять и брать данный код за основу для производных 
 в некоммерческих целях, при условии указания авторства и если производные лицензируются на тех же условиях.
 Код поставляется "как есть". Автор не несет ответственности за возможные последствия использования.
-Зуев Александр, 2020, все права защищены.
+Зуев Александр, 2021, все права защищены.
 This code is listed under the Creative Commons Attribution-NonСommercial-ShareAlike license.
 You may use, redistribute, remix, tweak, and build upon this work non-commercially,
 as long as you credit the author by linking back and license your new creations under the same terms.
 This code is provided 'as is'. Author disclaims any implied warranty.
-Zuev Aleksandr, 2020, all rigths reserved.*/
+Zuev Aleksandr, 2021, all rigths reserved.*/
 #endregion
 #region Usings
 using System;
@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.IO;
 using Autodesk.Revit.UI;
 using System.Windows.Media.Imaging;
+using Autodesk.Revit.UI.Events;
 #endregion
 
 namespace RibbonBimStarter
@@ -26,6 +27,9 @@ namespace RibbonBimStarter
         public static string assemblyPath;
         public static string assemblyFolder;
         public static string ribbonPath;
+
+        public static Guid paneGuid = new Guid("8d8207a6-c925-4e93-bb14-487912fb24b5");
+        private FamilyLibraryDockablePane pane = null;
 
         public Result OnStartup(UIControlledApplication application)
         {
@@ -69,8 +73,6 @@ namespace RibbonBimStarter
                 CreateTableRibbon(application, tabName);
                 CreateModelingRibbon(application, tabName);
                 CreateMasterRibbon(application, tabName);
-
-                return Result.Succeeded;
             }
             catch (Exception ex)
             {
@@ -78,6 +80,8 @@ namespace RibbonBimStarter
 
                 return Result.Failed;
             }
+            RegisterDockablepage(application);
+            return Result.Succeeded;
         }
 
         public Result OnShutdown(UIControlledApplication application)
@@ -258,7 +262,12 @@ namespace RibbonBimStarter
 
             SplitButtonData sbdParametrization = new SplitButtonData("ModelParametrizationSplitButton", "Параметризация");
             PushButtonData pbdWorksets = CreateButtonData("RevitWorksets", "Command");
-            PushButtonData pbdFamiliesLibrary = CreateButtonData("TestDockable3", "CommandShowDockableWindow");
+            PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", "Семейства", assemblyPath, "RibbonBimStarter.CommandShowPane");
+            pbdFamiliesLibrary.ToolTip = "Библиотека семейств";
+            string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "RibbonBimStarterData", "TestDockable3", "data");
+            pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "CommandShowDockableWindow_large.png")));
+            pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "CommandShowDockableWindow_small.png")));
+
             IList<RibbonItem> stacked2 = panel.AddStackedItems(sbdParametrization, pbdWorksets, pbdFamiliesLibrary);
 
             SplitButton splitParametrization = stacked2[0] as SplitButton;
@@ -308,7 +317,29 @@ namespace RibbonBimStarter
             return data;
         }
 
+        private void RegisterDockablepage(UIControlledApplication uiapp)
+        {
+            EventLoadFamily eventLoad = new EventLoadFamily();
+            ExternalEvent exEvent = ExternalEvent.Create(eventLoad);
+            DockablePaneProviderData providerData = new DockablePaneProviderData();
+            FamilyLibraryDockablePane famPane = new FamilyLibraryDockablePane(exEvent, eventLoad);
+            this.pane = famPane;
 
+            providerData.FrameworkElement = famPane;
+            DockablePaneState state = new DockablePaneState();
+            state.DockPosition = DockPosition.Left;
+            state.TabBehind = DockablePanes.BuiltInDockablePanes.ProjectBrowser;
+            providerData.InitialState = state;
 
+            DockablePaneId paneId = new DockablePaneId(paneGuid);
+
+            uiapp.RegisterDockablePane(paneId, "Библиотека семейств", famPane);
+            uiapp.ViewActivated += new EventHandler<ViewActivatedEventArgs>(App_ViewActivated);
+        }
+
+        private void App_ViewActivated(object sender, ViewActivatedEventArgs args)
+        {
+            //some actions 
+        }
     }
 }
