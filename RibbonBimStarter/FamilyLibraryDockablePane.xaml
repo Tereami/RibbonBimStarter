@@ -40,7 +40,7 @@
                                           MouseUp="ListView_MouseUp" >
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid ShowGridLines="True">
+                                            <Grid ShowGridLines="True" Grid.IsSharedSizeScope="True">
                                                 <Grid.ToolTip>
                                                     <StackPanel Width="250">
                                                         <Image MaxHeight="250" Source="{Binding ImagePath}" />
@@ -49,7 +49,7 @@
                                                     </StackPanel>
                                                 </Grid.ToolTip>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="0.25*"/>
+                                                    <ColumnDefinition Width="0.25*" SharedSizeGroup="icon"/>
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
                                                 <Image Grid.Column="0" MaxHeight="100" Stretch="Uniform" Source="{Binding ImagePath}" />
