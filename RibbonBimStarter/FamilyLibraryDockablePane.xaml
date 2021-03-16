@@ -1,11 +1,11 @@
-﻿<Page x:Class="RibbonBimStarter.FamilyLibraryDockablePane" 
+<Page x:Class="RibbonBimStarter.FamilyLibraryDockablePane" 
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
              xmlns:local="clr-namespace:RibbonBimStarter"
              Background="LightCyan"
-             mc:Ignorable="d" 
              d:DesignHeight="500" d:DesignWidth="300" >
     <Grid>
         <Grid.RowDefinitions>
@@ -38,21 +38,32 @@
                                           ScrollViewer.VerticalScrollBarVisibility="Auto"
                                           ItemsSource="{Binding Value}"
                                           MouseUp="ListView_MouseUp" >
+                                    <!--TOOLTIP CODE START-->
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type ListViewItem}">
+                                            <Setter Property="ToolTip">
+                                                <Setter.Value>
+                                                    <ToolTip>
+                                                        <StackPanel Width="250">
+                                                            <Image MaxHeight="250" Source="{Binding ImagePath}" />
+                                                            <TextBlock FontSize="16" TextWrapping="Wrap" Text="{Binding Title}" />
+                                                            <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding FilePath}" />
+                                                        </StackPanel>
+                                                    </ToolTip>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <!--TOOLTIP CODE END-->
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid ShowGridLines="True" Grid.IsSharedSizeScope="True">
-                                                <Grid.ToolTip>
-                                                    <StackPanel Width="250">
-                                                        <Image MaxHeight="250" Source="{Binding ImagePath}" />
-                                                        <TextBlock FontSize="16" TextWrapping="Wrap" Text="{Binding Title}" />
-                                                        <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding FilePath}" />
-                                                    </StackPanel>
-                                                </Grid.ToolTip>
+                                            <Grid ShowGridLines="True">
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="0.25*" SharedSizeGroup="icon"/>
+                                                    <!--To reduce or enlarge a picture, it is better to use a percentage.-->
+                                                    <ColumnDefinition Width="0.25*"/>
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-                                                <Image Grid.Column="0" MaxHeight="100" Stretch="Uniform" Source="{Binding ImagePath}" />
+                                                <Image Grid.Column="0" Stretch="Uniform" Source="{Binding ImagePath}" />
                                                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                                                     <TextBlock FontSize="14" TextWrapping="Wrap" Text="{Binding Title}" />
                                                     <TextBlock FontSize="12" Background="LightCoral"  VerticalAlignment="Stretch" TextWrapping="Wrap" Text="{Binding FolderTitle}"/>
