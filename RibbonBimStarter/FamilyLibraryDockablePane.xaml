@@ -57,16 +57,16 @@
                                     <!--TOOLTIP CODE END-->
                                     <ListView.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid ShowGridLines="True">
+                                            <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <!--To reduce or enlarge a picture, it is better to use a percentage.-->
-                                                    <ColumnDefinition Width="0.25*"/>
+                                                    <ColumnDefinition Width="0.3*"/>
                                                     <ColumnDefinition Width="*" />
                                                 </Grid.ColumnDefinitions>
-                                                <Image Grid.Column="0" Stretch="Uniform" Source="{Binding ImagePath}" />
+                                                <Image Grid.Column="0" MaxWidth="70" Stretch="Uniform" Source="{Binding ImagePath}" />
                                                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                                                     <TextBlock FontSize="14" TextWrapping="Wrap" Text="{Binding Title}" />
-                                                    <TextBlock FontSize="12" Background="LightCoral"  VerticalAlignment="Stretch" TextWrapping="Wrap" Text="{Binding FolderTitle}"/>
+                                                    <TextBlock FontSize="12" VerticalAlignment="Stretch" TextWrapping="Wrap" Text="{Binding FolderTitle}"/>
                                                 </StackPanel>
                                             </Grid>
                                         </DataTemplate>

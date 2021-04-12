@@ -23,6 +23,7 @@ namespace RibbonBimStarter
     /// </summary>
     public partial class FamilyLibraryDockablePane : System.Windows.Controls.Page, IDockablePaneProvider
     {
+
         private ExternalEvent _exEvent;
         private EventLoadFamily _loadfamEvent;
 
@@ -31,6 +32,10 @@ namespace RibbonBimStarter
         public FamilyLibraryDockablePane(ExternalEvent exEvent, EventLoadFamily loadFamEvent)
         {
             InitializeComponent();
+
+            ToolTipService.ShowDurationProperty
+                .OverrideMetadata(typeof(FrameworkElement), new FrameworkPropertyMetadata(int.MaxValue));
+
             _exEvent = exEvent;
             _loadfamEvent = loadFamEvent;
         }
