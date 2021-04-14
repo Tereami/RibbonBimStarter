@@ -17,6 +17,7 @@ using System.IO;
 using Autodesk.Revit.UI;
 using System.Windows.Media.Imaging;
 using Autodesk.Revit.UI.Events;
+using System.Diagnostics;
 #endregion
 
 namespace RibbonBimStarter
@@ -31,11 +32,20 @@ namespace RibbonBimStarter
         public static Guid paneGuid = new Guid("8d8207a6-c925-4e93-bb14-487912fb24b5");
         private FamilyLibraryDockablePane pane = null;
 
+        string revitVersion = "2017";
+
         public Result OnStartup(UIControlledApplication application)
         {
+            Debug.Listeners.Clear();
+            Debug.Listeners.Add(new Logger("Ribbon"));
+            Debug.WriteLine("Revit start");
             assemblyPath = typeof(App).Assembly.Location;
             assemblyFolder = Path.GetDirectoryName(assemblyPath);
-            ribbonPath = Path.Combine(assemblyFolder, "RibbonBimStarterData");
+            string appdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            //ribbonPath = Path.Combine(assemblyFolder, "RibbonBimStarterData");
+            ribbonPath = Path.Combine(appdataFolder, @"Autodesk\Revit\Addins\20xx\BimStarter");
+            revitVersion = application.ControlledApplication.VersionNumber;
+            Debug.WriteLine("Ribbin path: " + ribbonPath);
 
             string messageFiles = "";
             string[] addinFiles = System.IO.Directory.GetFiles(assemblyFolder, "*.addin");
@@ -59,11 +69,13 @@ namespace RibbonBimStarter
                 string msg = "Обнаружены устаревшие плагины Weandrevit. Закройте Revit, перейдите в папку ";
                 msg += assemblyFolder;
                 msg += " и удалите файлы: " + messageFiles;
+                Debug.WriteLine("Depricated files found: " + msg);
                 TaskDialog.Show("Установка BIM-STARTER", msg);
             }
 
             string tabName = "BIM-STARTER";
-            try { application.CreateRibbonTab(tabName); } catch { }
+            try { application.CreateRibbonTab(tabName); } 
+            catch { Debug.WriteLine("Unable to create tab name " + tabName); }
 
             try
             {
@@ -76,11 +88,13 @@ namespace RibbonBimStarter
             }
             catch (Exception ex)
             {
-                TaskDialog.Show("Ribbon Sample", ex.ToString());
-
+                TaskDialog.Show("Ribbon Sample", ex.Message);
+                Debug.WriteLine("Exception: " + ex.Message);
                 return Result.Failed;
             }
             RegisterDockablepage(application);
+
+            Debug.WriteLine("Ribbon is created succesfully");
             return Result.Succeeded;
         }
 
@@ -92,9 +106,11 @@ namespace RibbonBimStarter
 
         private void CreateAboutRibbon(UIControlledApplication uiApp, string tabName)
         {
+            Debug.WriteLine("AboutPanel started...");
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "About");
             panel.AddItem(CreateButtonData("AboutWeandrevit", "CommandAbout2"));
             //panel.AddItem(CreateButtonData("AskBimQuestion", "CommandAskBimQuestion"));
+            Debug.WriteLine("AboutPanel is created");
         }
 
 
@@ -102,6 +118,7 @@ namespace RibbonBimStarter
 
         private void CreateRebarRibbon(UIControlledApplication uiApp, string tabName)
         {
+            Debug.WriteLine("RebarPanel started...");
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Армирование");
             SplitButton areaRebarSplitButton = panel
                 .AddItem(new SplitButtonData("AreaRebarSplitButton", "Фоновое"))
@@ -120,13 +137,14 @@ namespace RibbonBimStarter
             PushButtonData dataHideRebars = CreateButtonData("RebarPresentation", "Command");
             PushButtonData dataExplodeRebars = CreateButtonData("ExplodeRebarSet", "CommandExplode");
             panel.AddStackedItems(dataAreaMark, dataHideRebars, dataExplodeRebars);
-            
+            Debug.WriteLine("RebarPanel is created");
         }
 
 
 
         private void CreateTableRibbon(UIControlledApplication uiApp, string tabName)
         {
+            Debug.WriteLine("TablePanel started...");
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Таблицы");
 
             PushButtonData dataRebarSketch = CreateButtonData("RebarSketch", "CommandCreatePictures3");
@@ -148,10 +166,12 @@ namespace RibbonBimStarter
             panel.AddSlideOut();
             PushButtonData dataScetchConstructor = CreateButtonData("RebarSketch", "CommandFormGenerator");
             panel.AddItem(dataScetchConstructor);
+            Debug.WriteLine("TablePanel is created");
         }
 
         private void CreateViewRibbon(UIControlledApplication uiApp, string tabName)
         {
+            Debug.WriteLine("ViewPanel started...");
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Виды и листы");
 
             PushButtonData pbdPrint = CreateButtonData("BatchPrintYay", "CommandBatchPrint");
@@ -166,9 +186,6 @@ namespace RibbonBimStarter
 
             SplitButtonData sbdFilters = new SplitButtonData("SplitButtonViewFilters", "Фильтры графики");
 
-            
-            
-
             IList<RibbonItem> filterItems = panel.AddStackedItems(pbdOverrides, pbdWallHatch, sbdFilters);
 
             SplitButton sbFilters = filterItems[2] as SplitButton;
@@ -181,10 +198,12 @@ namespace RibbonBimStarter
             PushButtonData pbdViewNumbers = CreateButtonData("ViewportNumbers", "CommandViewportNumbers");
             PushButtonData pbdTemplates = CreateButtonData("ViewTemplateUtils", "CommandCopyTemplate");
             panel.AddStackedItems(pbdOpenSheets, pbdViewNumbers, pbdTemplates);
+            Debug.WriteLine("ViewPanel is created");
         }
 
         private void CreateModelingRibbon(UIControlledApplication uiApp, string tabName)
         {
+            Debug.WriteLine("ModelingPanel started...");
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Моделирование");
 
             SplitButton splitHolesElev = panel
@@ -241,13 +260,14 @@ namespace RibbonBimStarter
             splitPiles.AddPushButton(CreateButtonData("PilesCoords", "PilesCalculateRangeCommand"));
             splitPiles.AddSeparator();
             splitPiles.AddPushButton(CreateButtonData("PilesCoords", "SettingsCommand"));
+            Debug.WriteLine("ModelingPanel is created");
         }
 
 
         private void CreateMasterRibbon(UIControlledApplication uiApp, string tabName)
         {
+            Debug.WriteLine("MasterPanel started...");
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "BIM-мастер");
-
 
             SplitButtonData sbdAddParams = new SplitButtonData("FamilyParametersSplitButton", "Добавить параметры");
             PushButtonData pbdClearGuids = CreateButtonData("ClearUnusedGUIDs", "CommandClear");
@@ -264,9 +284,9 @@ namespace RibbonBimStarter
             PushButtonData pbdWorksets = CreateButtonData("RevitWorksets", "Command");
             PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", "Семейства", assemblyPath, "RibbonBimStarter.CommandShowPane");
             pbdFamiliesLibrary.ToolTip = "Библиотека семейств";
-            string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "RibbonBimStarterData", "TestDockable3", "data");
-            pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "CommandShowDockableWindow_large.png")));
-            pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "CommandShowDockableWindow_small.png")));
+            string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "FamilyLibrary_data");
+            pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_large.png")));
+            pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_small.png")));
 
             IList<RibbonItem> stacked2 = panel.AddStackedItems(sbdParametrization, pbdWorksets, pbdFamiliesLibrary);
 
@@ -274,16 +294,28 @@ namespace RibbonBimStarter
             splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("RebarBDS", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam"));
-            splitParametrization.AddPushButton(CreateButtonData("RevitPlatesWeight", "Command"));
+            if (revitVersion != "2017" && revitVersion != "2018")
+            {
+                splitParametrization.AddPushButton(CreateButtonData("RevitPlatesWeight", "Command"));
+            }
             splitParametrization.AddPushButton(CreateButtonData("IngradParametrisation", "Cmd"));
+            Debug.WriteLine("MasterPanel is created");
         }
 
 
         public PushButtonData CreateButtonData(string assemblyName, string className)
         {
-            string dllPath = Path.Combine(ribbonPath, assemblyName, assemblyName + ".dll");
+            string dllPath = Path.Combine(ribbonPath, assemblyName + ".dll");
+            if(!File.Exists(dllPath))
+            {
+                dllPath = Path.Combine(ribbonPath, assemblyName + "_" + revitVersion + ".dll");
+                if(!File.Exists(dllPath))
+                {
+                    throw new Exception("File not found " + dllPath.Replace(@"\", @" \ "));
+                }
+            }
             string fullClassname = assemblyName + "." + className;
-            string dataPath = Path.Combine(ribbonPath, assemblyName, "data");
+            string dataPath = Path.Combine(ribbonPath, assemblyName + "_data");
             string largeIcon = Path.Combine(dataPath, className + "_large.png");
             string smallIcon = Path.Combine(dataPath, className + "_small.png");
             string textPath = Path.Combine(dataPath, className + ".txt");
@@ -319,6 +351,7 @@ namespace RibbonBimStarter
 
         private void RegisterDockablepage(UIControlledApplication uiapp)
         {
+            Debug.WriteLine("Start register dockable pane");
             EventLoadFamily eventLoad = new EventLoadFamily();
             ExternalEvent exEvent = ExternalEvent.Create(eventLoad);
             DockablePaneProviderData providerData = new DockablePaneProviderData();
@@ -327,14 +360,15 @@ namespace RibbonBimStarter
 
             providerData.FrameworkElement = famPane;
             DockablePaneState state = new DockablePaneState();
-            state.DockPosition = DockPosition.Left;
+            state.DockPosition = DockPosition.Tabbed;
             state.TabBehind = DockablePanes.BuiltInDockablePanes.ProjectBrowser;
             providerData.InitialState = state;
 
             DockablePaneId paneId = new DockablePaneId(paneGuid);
 
             uiapp.RegisterDockablePane(paneId, "Библиотека семейств", famPane);
-            uiapp.ViewActivated += new EventHandler<ViewActivatedEventArgs>(App_ViewActivated);
+            //uiapp.ViewActivated += new EventHandler<ViewActivatedEventArgs>(App_ViewActivated);
+            Debug.WriteLine("Dockable pane is registered");
         }
 
         private void App_ViewActivated(object sender, ViewActivatedEventArgs args)

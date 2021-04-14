@@ -1,10 +1,21 @@
-﻿using System;
+﻿#region License
+/*Данный код опубликован под лицензией Creative Commons Attribution-NonСommercial-ShareAlike.
+Разрешено использовать, распространять, изменять и брать данный код за основу для производных 
+в некоммерческих целях, при условии указания авторства и если производные лицензируются на тех же условиях.
+Код поставляется "как есть". Автор не несет ответственности за возможные последствия использования.
+Зуев Александр, 2021, все права защищены.
+This code is listed under the Creative Commons Attribution-NonСommercial-ShareAlike license.
+You may use, redistribute, remix, tweak, and build upon this work non-commercially,
+as long as you credit the author by linking back and license your new creations under the same terms.
+This code is provided 'as is'. Author disclaims any implied warranty.
+Zuev Aleksandr, 2021, all rigths reserved.*/
+#endregion
+#region usings
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Diagnostics;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -15,6 +26,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+#endregion
 
 namespace RibbonBimStarter
 {
@@ -31,6 +43,7 @@ namespace RibbonBimStarter
 
         public FamilyLibraryDockablePane(ExternalEvent exEvent, EventLoadFamily loadFamEvent)
         {
+            Debug.WriteLine("Start initializing pane");
             InitializeComponent();
 
             ToolTipService.ShowDurationProperty
@@ -38,6 +51,7 @@ namespace RibbonBimStarter
 
             _exEvent = exEvent;
             _loadfamEvent = loadFamEvent;
+            Debug.WriteLine("Pane is initialized");
         }
 
         public void SetupDockablePane(DockablePaneProviderData data)
@@ -48,24 +62,41 @@ namespace RibbonBimStarter
             data.InitialState.TabBehind = DockablePanes.BuiltInDockablePanes.ProjectBrowser;
         }
 
-        private void ListView_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            ListView list = sender as ListView;
-            FamilyFileInfo famInfo = (FamilyFileInfo)list.SelectedItem;
-            EventLoadFamily.familyPath = famInfo.FilePath;
-            _exEvent.Raise();
-        }
 
         private void AddFamilies_Click(object sender, RoutedEventArgs e)
         {
-            //System.Windows.Forms.FolderBrowserDialog folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-            //if (folderDialog.ShowDialog() != System.Windows.Forms.DialogResult.OK) return;
-            //string selectedPath = folderDialog.SelectedPath;
-
-            string selectedPath = @"C:\Users\Alexander\YandexDisk\WeAndRevit\BIMLIBRARY\Окна двери 2017"; 
+            string appdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string selectedPath = System.IO.Path.Combine(appdataFolder, @"Autodesk\Revit\Addins\20xx\BimStarter\FamiliesLibraryTest");
+            Debug.WriteLine("Load families, folder: " + selectedPath);
+            if(!System.IO.Directory.Exists(selectedPath))
+            {
+                Debug.WriteLine("Folder not found");
+                return;
+            }
             familyCollection = FilesScaner.GetInfo(selectedPath);
+            if(familyCollection == null || familyCollection.Count == 0)
+            {
+                Debug.WriteLine("No families found");
+                return;
+            }
             this.tabcontrol.ItemsSource = familyCollection;
+            Debug.WriteLine("Families found: " + familyCollection.Count.ToString());
+        }
 
+        private void ListViewItem_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Debug.WriteLine("Click load family");
+
+            ListViewItem item = (ListViewItem)sender;
+            if (!(item.Content is FamilyFileInfo))
+            {
+                Debug.WriteLine("Familyinfo is incorrect");
+            }
+            FamilyFileInfo famInfo = (FamilyFileInfo)item.Content;
+           
+            Debug.WriteLine("Fam file path: " + famInfo.FilePath);
+            EventLoadFamily.familyPath = famInfo.FilePath;
+            _exEvent.Raise();
         }
     }
 }

@@ -62,6 +62,7 @@
     </Compile>
     <Compile Include="FamilyLoadOptions.cs" />
     <Compile Include="FilesScaner.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

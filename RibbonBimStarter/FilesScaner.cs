@@ -1,10 +1,22 @@
-﻿using System;
+﻿#region License
+/*Данный код опубликован под лицензией Creative Commons Attribution-NonСommercial-ShareAlike.
+Разрешено использовать, распространять, изменять и брать данный код за основу для производных 
+в некоммерческих целях, при условии указания авторства и если производные лицензируются на тех же условиях.
+Код поставляется "как есть". Автор не несет ответственности за возможные последствия использования.
+Зуев Александр, 2021, все права защищены.
+This code is listed under the Creative Commons Attribution-NonСommercial-ShareAlike license.
+You may use, redistribute, remix, tweak, and build upon this work non-commercially,
+as long as you credit the author by linking back and license your new creations under the same terms.
+This code is provided 'as is'. Author disclaims any implied warranty.
+Zuev Aleksandr, 2021, all rigths reserved.*/
+#endregion
+#region usings
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+#endregion
 
 namespace RibbonBimStarter
 {
@@ -51,34 +63,30 @@ namespace RibbonBimStarter
 				FamilyFileInfo familyFileInfo = new FamilyFileInfo();
 				familyFileInfo.FilePath = current;
 				familyFileInfo.Title = Path.GetFileName(current);
-				string text = current.Substring(0, current.Length - 3) + "jpg";
-				bool flag = File.Exists(text);
-				bool flag2 = !flag;
-				if (flag2)
+				string imageFilePath = current.Substring(0, current.Length - 3) + "jpg";
+				bool imageExists = File.Exists(imageFilePath);
+				if (!imageExists)
 				{
-					text = current.Substring(0, current.Length - 3) + "png";
-					flag = File.Exists(text);
+					imageFilePath = current.Substring(0, current.Length - 3) + "png";
+					imageExists = File.Exists(imageFilePath);
 				}
-				bool flag3 = flag;
-				if (flag3)
+				if (imageExists)
 				{
-					familyFileInfo.ImagePath = text;
+					familyFileInfo.ImagePath = imageFilePath;
 				}
-				string text2 = Path.GetDirectoryName(current).Split(new char[]
+				else
+                {
+					continue;
+                }
+				string folderTitle = Path.GetDirectoryName(current).Split('\\').Last();
+				familyFileInfo.FolderTitle = folderTitle;
+				if (dictionary.ContainsKey(folderTitle))
 				{
-					'\\'
-				}).Last<string>();
-				familyFileInfo.FolderTitle = text2;
-				bool flag4 = dictionary.ContainsKey(text2);
-				bool flag5 = flag4;
-				if (flag5)
-				{
-					ObservableCollection<FamilyFileInfo> observableCollection = dictionary[text2];
-					observableCollection.Add(familyFileInfo);
+					dictionary[folderTitle].Add(familyFileInfo);
 				}
 				else
 				{
-					dictionary.Add(text2, new ObservableCollection<FamilyFileInfo>
+					dictionary.Add(folderTitle, new ObservableCollection<FamilyFileInfo>
 					{
 						familyFileInfo
 					});
