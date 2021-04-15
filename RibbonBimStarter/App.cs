@@ -292,7 +292,7 @@ namespace RibbonBimStarter
 
             SplitButton splitParametrization = stacked2[0] as SplitButton;
             splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "Command"));
-            splitParametrization.AddPushButton(CreateButtonData("RebarPresentation", "Command"));
+            splitParametrization.AddPushButton(CreateButtonData("RebarParametrisation", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam"));
             if (revitVersion != "2017" && revitVersion != "2018")
             {
