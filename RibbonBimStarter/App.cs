@@ -292,7 +292,7 @@ namespace RibbonBimStarter
 
             SplitButton splitParametrization = stacked2[0] as SplitButton;
             splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "Command"));
-            splitParametrization.AddPushButton(CreateButtonData("RebarBDS", "Command"));
+            splitParametrization.AddPushButton(CreateButtonData("RebarPresentation", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam"));
             if (revitVersion != "2017" && revitVersion != "2018")
             {
@@ -325,18 +325,6 @@ namespace RibbonBimStarter
             string url = text[2];
 
             PushButtonData data = new PushButtonData(fullClassname, title, dllPath, fullClassname);
-
-            //PushButton pbutton = null;
-            //if(parentItem is RibbonPanel)
-            //{
-            //    RibbonPanel panel = parentItem as RibbonPanel;
-            //    pbutton = panel.AddItem(data) as PushButton;
-            //}
-            //if(parentItem is SplitButton)
-            //{
-            //    SplitButton splitBtn = parentItem as SplitButton;
-            //    pbutton = splitBtn.AddPushButton(data);
-            //}
 
             data.LargeImage = new BitmapImage(new Uri(largeIcon, UriKind.Absolute));
             data.Image = new BitmapImage(new Uri(smallIcon, UriKind.Absolute));
