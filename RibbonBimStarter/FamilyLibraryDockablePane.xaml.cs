@@ -65,16 +65,25 @@ namespace RibbonBimStarter
 
         private void AddFamilies_Click(object sender, RoutedEventArgs e)
         {
-            string appdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            /*string appdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string selectedPath = System.IO.Path.Combine(appdataFolder, @"Autodesk\Revit\Addins\20xx\BimStarter\FamiliesLibraryTest");
-            Debug.WriteLine("Load families, folder: " + selectedPath);
             if(!System.IO.Directory.Exists(selectedPath))
             {
                 Debug.WriteLine("Folder not found");
                 return;
             }
-            familyCollection = FilesScaner.GetInfo(selectedPath);
-            if(familyCollection == null || familyCollection.Count == 0)
+            familyCollection = FilesScaner.GetInfo(selectedPath);*/
+            WebConnection connect = App.connect;
+            connect.SendRequestAndReadString("familiesapp?revitversion=" + App.revitVersion);
+            if(connect.status != 200)
+            {
+                Debug.WriteLine("Error request, status " + connect.status);
+                MessageBox.Show(connect.error);
+                return;
+            }
+
+            familyCollection = FamiliesCollection.convertJsonToFamilies(connect.responseString);
+            if (familyCollection == null || familyCollection.Count == 0)
             {
                 Debug.WriteLine("No families found");
                 return;
@@ -93,9 +102,15 @@ namespace RibbonBimStarter
                 Debug.WriteLine("Familyinfo is incorrect");
             }
             FamilyFileInfo famInfo = (FamilyFileInfo)item.Content;
+            if(famInfo == null)
+            {
+                Debug.WriteLine("Fam info is null");
+                return;
+            }
            
-            Debug.WriteLine("Fam file path: " + famInfo.FilePath);
-            EventLoadFamily.familyPath = famInfo.FilePath;
+            Debug.WriteLine("Fam file guid: " + famInfo.Guid);
+            EventLoadFamily.familyguid = famInfo.Guid;
+            EventLoadFamily.familyname = famInfo.FamilyName;
             _exEvent.Raise();
         }
     }

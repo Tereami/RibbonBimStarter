@@ -29,10 +29,13 @@ namespace RibbonBimStarter
         public static string assemblyFolder;
         public static string ribbonPath;
 
+        public static SettingsStorage settings;
+        public static WebConnection connect;
+
         public static Guid paneGuid = new Guid("8d8207a6-c925-4e93-bb14-487912fb24b5");
         private FamilyLibraryDockablePane pane = null;
 
-        string revitVersion = "2017";
+        public static string revitVersion = "2020";
 
         public Result OnStartup(UIControlledApplication application)
         {
@@ -46,6 +49,14 @@ namespace RibbonBimStarter
             ribbonPath = Path.Combine(appdataFolder, @"Autodesk\Revit\Addins\20xx\BimStarter");
             revitVersion = application.ControlledApplication.VersionNumber;
             Debug.WriteLine("Ribbin path: " + ribbonPath);
+
+            settings = SettingsStorage.LoadSettings();
+            if(settings == null)
+            {
+                TaskDialog.Show("Ошибка", "Не удалось запустить Bim-Starter! Не найден файл настроек");
+                return Result.Failed;
+            }
+            connect = new WebConnection(App.settings.Email, App.settings.Password, App.settings.Website);
 
             string messageFiles = "";
             string[] addinFiles = System.IO.Directory.GetFiles(assemblyFolder, "*.addin");
@@ -282,13 +293,9 @@ namespace RibbonBimStarter
 
             SplitButtonData sbdParametrization = new SplitButtonData("ModelParametrizationSplitButton", "Параметризация");
             PushButtonData pbdWorksets = CreateButtonData("RevitWorksets", "Command");
-            PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", "Семейства", assemblyPath, "RibbonBimStarter.CommandShowPane");
-            pbdFamiliesLibrary.ToolTip = "Библиотека семейств";
-            string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "FamilyLibrary_data");
-            pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_large.png")));
-            pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_small.png")));
+            SplitButtonData sbdFamilies = new SplitButtonData("FamiliesSplitButton", "Библиотека семейств");
 
-            IList<RibbonItem> stacked2 = panel.AddStackedItems(sbdParametrization, pbdWorksets, pbdFamiliesLibrary);
+            IList<RibbonItem> stacked2 = panel.AddStackedItems(sbdParametrization, pbdWorksets, sbdFamilies);
 
             SplitButton splitParametrization = stacked2[0] as SplitButton;
             splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "Command"));
@@ -299,6 +306,30 @@ namespace RibbonBimStarter
                 splitParametrization.AddPushButton(CreateButtonData("RevitPlatesWeight", "Command"));
             }
             splitParametrization.AddPushButton(CreateButtonData("IngradParametrisation", "Cmd"));
+
+            
+            PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", "Семейства", assemblyPath, "RibbonBimStarter.CommandShowPane");
+            pbdFamiliesLibrary.ToolTip = "Открыть палитру библиотеки семейств";
+            string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "FamilyLibrary_data");
+            pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_large.png")));
+            pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_small.png")));
+
+            PushButtonData pbdCheckFamilies = new PushButtonData("CheckFamilies", "Проверить проект", assemblyPath, "RibbonBimStarter.CommandCheckFamilies");
+            pbdCheckFamilies.ToolTip = "Проверить проект на наличие устаревших, дублированных, сторонних и неверно названных семейств";
+
+            PushButtonData pbdUploadFamily = new PushButtonData("UploadFamily", "Загрузить в базу", assemblyPath, "RibbonBimStarter.CommandUploadFamily");
+            pbdUploadFamily.ToolTip = "Загрузить семейство в библиотеку";
+
+            PushButtonData pbdFamilySettings = new PushButtonData("FamilySettings", "Настройки", assemblyPath, "RibbonBimStarter.CommandFamilySettings");
+            pbdFamilySettings.ToolTip = "Настройки библиотеки семейств";
+
+            SplitButton splitFamilies = stacked2[2] as SplitButton;
+            splitFamilies.AddPushButton(pbdFamiliesLibrary);
+            splitFamilies.AddPushButton(pbdCheckFamilies);
+            splitFamilies.AddPushButton(pbdUploadFamily);
+            splitFamilies.AddPushButton(pbdFamilySettings);
+
+
             Debug.WriteLine("MasterPanel is created");
         }
 

@@ -26,62 +26,92 @@ namespace RibbonBimStarter
 {
     public class EventLoadFamily : IExternalEventHandler
     {
-        public static string familyPath;
+        public static string familyguid;
+        public static string familyname;
         public void Execute(UIApplication app)
         {
-            Debug.WriteLine("Start load family, path: " + familyPath);
             Document doc = app.ActiveUIDocument.Document;
             Family fam = null;
             FamilySymbol famSymb = null;
-            bool loadSuccess = false;
-            using (Transaction t = new Transaction(doc))
-            {
-                t.Start("Load family");
-                try
-                {
-                    loadSuccess = doc.LoadFamily(familyPath, new FamilyLoadOptions(), out fam);
-                }
-                catch
-                {
-                    Debug.WriteLine("Unable to load family: " + familyPath);
-                    return;
-                }
-                if (!loadSuccess)
-                {
-                    TaskDialog.Show("Ошибка", "Не удалось загрузить " + familyPath);
-                    return;
-                }
-                string famName = Path.GetFileNameWithoutExtension(familyPath);
-                List<Family> fams = new FilteredElementCollector(doc)
+
+            List<Family> checkPreloadedFams = new FilteredElementCollector(doc)
                     .WhereElementIsNotElementType()
                     .OfClass(typeof(Family))
-                    .Where(i => i.Name.Equals(famName))
+                    .Where(i => i.Name.Equals(familyname))
                     .Cast<Family>()
                     .ToList();
-                if (fams.Count == 0)
+            if (checkPreloadedFams.Count > 0)
+            {
+                fam = checkPreloadedFams[0];
+                Debug.WriteLine("Family has already loaded " + familyname);
+            }
+            else
+            {
+                Debug.WriteLine("Start download family: " + familyguid);
+                WebConnection connect = new WebConnection(App.settings.Email, App.settings.Password, App.settings.Website);
+                string fampath = connect.DownloadFamily(familyguid, familyname);
+                if (connect.status != 200)
                 {
-                    TaskDialog.Show("Ошибка", "Не удалось найти загруженное семейство " + famName);
-                    Debug.WriteLine("Loaded family isnt found: " + famName);
+                    TaskDialog.Show("Ошибка", connect.error);
                     return;
                 }
-                fam = fams[0];
 
-                doc.Regenerate();
-                famSymb = doc.GetElement(fam.GetFamilySymbolIds().First()) as FamilySymbol;
-                if (!famSymb.IsActive)
+                using (Transaction t = new Transaction(doc))
                 {
+                    t.Start("Load family");
+                    bool loadSuccess = false;
+                    try
+                    {
+                        loadSuccess = doc.LoadFamily(fampath, new FamilyLoadOptions(), out fam);
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("Unable to load family: " + fampath);
+                        return;
+                    }
+                    if (!loadSuccess)
+                    {
+                        TaskDialog.Show("Ошибка", "Не удалось загрузить " + fampath);
+                        return;
+                    }
+                    //string familyname = Path.GetFileNameWithoutExtension(fampath);
+
+                    List<Family> fams = new FilteredElementCollector(doc)
+                        .WhereElementIsNotElementType()
+                        .OfClass(typeof(Family))
+                        .Where(i => i.Name.Equals(familyname))
+                        .Cast<Family>()
+                        .ToList();
+                    if (fams.Count == 0)
+                    {
+                        TaskDialog.Show("Ошибка", "Не удалось найти загруженное семейство " + familyname);
+                        Debug.WriteLine("Loaded family isnt found: " + familyname);
+                        return;
+                    }
+                    fam = fams[0];
+                    doc.Regenerate();
+                    t.Commit();
+                }
+            }
+            famSymb = doc.GetElement(fam.GetFamilySymbolIds().First()) as FamilySymbol;
+            if (!famSymb.IsActive)
+            {
+                using (Transaction t2 = new Transaction(doc))
+                {
+                    t2.Start("Activate symbol");
                     famSymb.Activate();
                     Debug.WriteLine("Family symbol has activated");
+                    t2.Commit();
                 }
-                t.Commit();
             }
+
             app.ActiveUIDocument.PostRequestForElementTypePlacement(famSymb);
             Debug.WriteLine("Family is loaded succesfully");
         }
 
         public string GetName()
         {
-            return "Load family event";
+            return "Bim-Starter_LoadFamily_Event";
         }
     }
 }

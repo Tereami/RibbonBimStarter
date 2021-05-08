@@ -11,39 +11,19 @@ This code is provided 'as is'. Author disclaims any implied warranty.
 Zuev Aleksandr, 2021, all rigths reserved.*/
 #endregion
 
-using System;
-
+using System.Diagnostics;
+using Autodesk.Revit.DB;
+using Autodesk.Revit.UI;
 
 namespace RibbonBimStarter
 {
-    public class FamilyFileInfo
+    [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
+    public class CommandUploadFamily : IExternalCommand
     {
-        public int Id { get; set; }
-
-        public string Guid { get; set; }
-
-        public string Title { get; set; }
-
-        public string FolderTitle { get; set; }
-
-        public string ImagePath { get; set; }
-
-        public string Description { get; set; }
-
-        public string ShortDescription { get; set; }
-
-        public string HostType { get; set; }
-        public string HostShortName { get; set; }
-
-        public string CategoryName { get; set; }
-        public string CategoryShortName { get; set; }
-
-        public string CategoryTitleAndName { get; set; }
-
-        public string DateAdd { get; set; }
-
-        public string RevitVersion { get; set; }
-
-        public string FamilyName { get; set; }
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            TaskDialog.Show("Test", "Hello form Upload family");
+            return Result.Succeeded;
+        }
     }
 }

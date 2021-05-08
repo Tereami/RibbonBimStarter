@@ -14,7 +14,7 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
         <Border Grid.Row="0" Background="LightGray">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="БИБЛИОТЕКА В РАЗРАБОТКЕ"></TextBlock> 
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Text="Библиотека семейств"></TextBlock> 
         </Border>
         <Border Grid.Row="2" Background="LightGray" />
         <TabControl x:Name="tabcontrol" TabStripPlacement="Right" Grid.Row="1" SelectedIndex="0" Padding="1" ItemsSource="{Binding familyCollection}">
@@ -46,9 +46,14 @@
                                                 <Setter.Value>
                                                     <ToolTip>
                                                         <StackPanel Width="250">
-                                                            <Image MaxHeight="250" Source="{Binding ImagePath}" />
                                                             <TextBlock FontSize="16" TextWrapping="Wrap" Text="{Binding Title}" />
-                                                            <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding FilePath}" />
+                                                            <Image MaxHeight="250" Source="{Binding ImagePath}" />
+                                                            <TextBlock FontSize="14" TextWrapping="Wrap" Text="{Binding Description}" />
+                                                            <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding CategoryTitleAndName}" />
+                                                            <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding HostType}" />
+                                                            <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding RevitVersion}" />
+                                                            <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding DateAdd}" />
+                                                            <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding Guid}" />
                                                         </StackPanel>
                                                     </ToolTip>
                                                 </Setter.Value>
@@ -68,7 +73,7 @@
                                                 <Image Grid.Column="0" MaxWidth="70" Stretch="Uniform" Source="{Binding ImagePath}" />
                                                 <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
                                                     <TextBlock FontSize="14" TextWrapping="Wrap" Text="{Binding Title}" />
-                                                    <TextBlock FontSize="12" VerticalAlignment="Stretch" TextWrapping="Wrap" Text="{Binding FolderTitle}"/>
+                                                    <TextBlock FontSize="12" VerticalAlignment="Stretch" TextWrapping="Wrap" Text="{Binding CategoryName}"/>
                                                 </StackPanel>
                                             </Grid>
                                         </DataTemplate>

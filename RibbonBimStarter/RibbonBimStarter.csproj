@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="RevitAPI">
@@ -54,22 +57,30 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="CommandCheckFamilies.cs" />
+    <Compile Include="CommandFamilySettings.cs" />
     <Compile Include="CommandShowPane.cs" />
+    <Compile Include="CommandUploadFamily.cs" />
     <Compile Include="EventLoadFamily.cs" />
+    <Compile Include="FamiliesCollection.cs" />
     <Compile Include="FamilyFileInfo.cs" />
     <Compile Include="FamilyLibraryDockablePane.xaml.cs">
       <DependentUpon>FamilyLibraryDockablePane.xaml</DependentUpon>
     </Compile>
     <Compile Include="FamilyLoadOptions.cs" />
-    <Compile Include="FilesScaner.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SettingsStorage.cs" />
+    <Compile Include="WebConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="FamilyLibraryDockablePane.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
