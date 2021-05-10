@@ -39,7 +39,7 @@ namespace RibbonBimStarter
         private ExternalEvent _exEvent;
         private EventLoadFamily _loadfamEvent;
 
-        public Dictionary<string, ObservableCollection<FamilyFileInfo>> familyCollection;
+        public SortedDictionary<string, ObservableCollection<FamilyFileInfo>> familyCollection;
 
         public FamilyLibraryDockablePane(ExternalEvent exEvent, EventLoadFamily loadFamEvent)
         {
@@ -74,15 +74,15 @@ namespace RibbonBimStarter
             }
             familyCollection = FilesScaner.GetInfo(selectedPath);*/
             WebConnection connect = App.connect;
-            connect.SendRequestAndReadString("familiesapp?revitversion=" + App.revitVersion);
-            if(connect.status != 200)
+            ServerResponse sr = connect.Request("familiesapp?revitversion=" + App.revitVersion);
+            if(sr.Statuscode >= 400)
             {
-                Debug.WriteLine("Error request, status " + connect.status);
-                MessageBox.Show(connect.error);
+                Debug.WriteLine("Error request, status " + sr.Statuscode + " message " + sr.Message);
+                MessageBox.Show(sr.Message, "Error" + sr.Statuscode);
                 return;
             }
 
-            familyCollection = FamiliesCollection.convertJsonToFamilies(connect.responseString);
+            familyCollection = FamiliesCollection.convertJsonToFamilies(sr.Message);
             if (familyCollection == null || familyCollection.Count == 0)
             {
                 Debug.WriteLine("No families found");

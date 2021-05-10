@@ -22,40 +22,24 @@ using Newtonsoft.Json;
 
 namespace RibbonBimStarter
 {
-    [Serializable]
-    public class FamilyCard
-    {
-        public string name;
-        public string guid;
-        public string groupid;
-        public string grname;
-        public string description;
-        public string dateadd;
-        public string revitversion;
-        public string category;
-        public string catshortname;
-        public string host;
-        public string hostshortname;
-    }
-
     public static class FamiliesCollection
     {
-        public static Dictionary<string, ObservableCollection<FamilyFileInfo>> convertJsonToFamilies(string json)
+        public static SortedDictionary<string, ObservableCollection<FamilyFileInfo>> convertJsonToFamilies(string json)
         {
-            Dictionary<string, ObservableCollection<FamilyFileInfo>> dictionary =
-                new Dictionary<string, ObservableCollection<FamilyFileInfo>>();
+            SortedDictionary<string, ObservableCollection<FamilyFileInfo>> dictionary =
+                new SortedDictionary<string, ObservableCollection<FamilyFileInfo>>();
 
-            List<FamilyCard> infos = new List<FamilyCard>();
+            List<FamilyShortInfo> infos = new List<FamilyShortInfo>();
 
             try
             {
-                infos = JsonConvert.DeserializeObject<List<FamilyCard>>(json);
+                infos = JsonConvert.DeserializeObject<List<FamilyShortInfo>>(json);
             }
             catch
             {
                 System.Windows.Forms.MessageBox.Show("Не удалось десериализовать: " + json);
             }
-            foreach (FamilyCard fc in infos)
+            foreach (FamilyShortInfo fc in infos)
             {
                 FamilyFileInfo familyFileInfo = new FamilyFileInfo();
                 familyFileInfo.Guid = fc.guid;
@@ -74,7 +58,7 @@ namespace RibbonBimStarter
 
                 //familyFileInfo.FamilyName = 
 
-                string folderTitle = fc.groupid + "_" + fc.grname;
+                string folderTitle = fc.groupid + "_" + fc.groupname.Substring(0, 3);
                 familyFileInfo.FolderTitle = folderTitle;
                 if (dictionary.ContainsKey(folderTitle))
                 {
@@ -83,6 +67,17 @@ namespace RibbonBimStarter
                 else
                 {
                     dictionary.Add(folderTitle, new ObservableCollection<FamilyFileInfo>
+                    {
+                        familyFileInfo
+                    });
+                }
+                if (dictionary.ContainsKey("000_Все"))
+                {
+                    dictionary["000_Все"].Add(familyFileInfo);
+                }
+                else
+                {
+                    dictionary.Add("000_Все", new ObservableCollection<FamilyFileInfo>
                     {
                         familyFileInfo
                     });

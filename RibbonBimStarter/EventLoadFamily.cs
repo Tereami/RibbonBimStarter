@@ -49,13 +49,14 @@ namespace RibbonBimStarter
             {
                 Debug.WriteLine("Start download family: " + familyguid);
                 WebConnection connect = new WebConnection(App.settings.Email, App.settings.Password, App.settings.Website);
-                string fampath = connect.DownloadFamily(familyguid, familyname);
-                if (connect.status != 200)
+                ServerResponse sr = connect.DownloadFamily(familyguid, familyname);
+                if(sr.Statuscode >= 400)
                 {
-                    TaskDialog.Show("Ошибка", connect.error);
+                    TaskDialog.Show("Error " + sr.Statuscode.ToString(), sr.Message);
                     return;
                 }
-
+                string fampath = sr.Message;
+                
                 using (Transaction t = new Transaction(doc))
                 {
                     t.Start("Load family");

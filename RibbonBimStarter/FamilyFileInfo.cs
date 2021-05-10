@@ -12,6 +12,8 @@ Zuev Aleksandr, 2021, all rigths reserved.*/
 #endregion
 
 using System;
+using System.Collections.Generic;
+using Autodesk.Revit.DB;
 
 
 namespace RibbonBimStarter
@@ -45,5 +47,63 @@ namespace RibbonBimStarter
         public string RevitVersion { get; set; }
 
         public string FamilyName { get; set; }
+
+        public static int GetHostTypeId(Family fam)
+        {
+            FamilyPlacementType placeType = fam.FamilyPlacementType;
+            switch (placeType)
+            {
+                case FamilyPlacementType.OneLevelBased:
+                    return 1;
+                case FamilyPlacementType.TwoLevelsBased:
+                    return 4;
+                case FamilyPlacementType.CurveBased:
+                    return 5;
+                case FamilyPlacementType.CurveDrivenStructural:
+                    return 6;
+                case FamilyPlacementType.ViewBased:
+                    return 11;
+                case FamilyPlacementType.CurveBasedDetail:
+                    return 12;
+                case FamilyPlacementType.Adaptive:
+                    return 13;
+            }
+
+            foreach (Parameter p in fam.GetOrderedParameters())
+            {
+                InternalDefinition intdef = p.Definition as InternalDefinition;
+                if (intdef == null) continue;
+                if (intdef.BuiltInParameter == BuiltInParameter.FAMILY_HOSTING_BEHAVIOR)
+                {
+                    int hostTypeId = p.AsInteger();
+                    switch (hostTypeId)
+                    {
+                        case 1: //стена
+                            return 7;
+                        case 2: //перекрытие
+                            return 8;
+                        case 3: //потолок
+                            return 10;
+                        case 4: //крыша
+                            return 9;
+                        case 5: //грань
+                            return 3;
+                    }
+                }
+
+                if (intdef.BuiltInParameter == BuiltInParameter.FAMILY_WORK_PLANE_BASED)
+                {
+                    if (p.AsInteger() == 1)
+                    {
+                        return 2;
+                    }
+                    else
+                    {
+                        return 1;
+                    }
+                }
+            }
+            return 14;
+        }
     }
 }
