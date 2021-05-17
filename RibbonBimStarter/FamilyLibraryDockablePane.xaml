@@ -47,7 +47,7 @@
                                                     <ToolTip>
                                                         <StackPanel Width="250">
                                                             <TextBlock FontSize="16" TextWrapping="Wrap" Text="{Binding Title}" LineStackingStrategy="BlockLineHeight" LineHeight="20"/>
-                                                            <Image MaxHeight="250" Source="{Binding ImagePath}" />
+                                                            <Image MaxHeight="250" Source="{Binding ImageBigPath}" />
                                                             <TextBlock FontSize="14" TextWrapping="Wrap" Text="{Binding Description}" LineStackingStrategy="BlockLineHeight" LineHeight="16"/>
                                                             <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding CategoryTitleAndName}" />
                                                             <TextBlock FontSize="10" TextWrapping="Wrap" Text="{Binding HostType}" />

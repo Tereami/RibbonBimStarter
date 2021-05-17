@@ -10,25 +10,28 @@ as long as you credit the author by linking back and license your new creations 
 This code is provided 'as is'. Author disclaims any implied warranty.
 Zuev Aleksandr, 2021, all rigths reserved.*/
 #endregion
-
+#region usings
+using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Collections.Generic;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using Newtonsoft.Json;
+#endregion
 
 namespace RibbonBimStarter
 {
     [Autodesk.Revit.Attributes.Transaction(Autodesk.Revit.Attributes.TransactionMode.Manual)]
-    public class CommandShowPane : IExternalCommand
+    public class CommandShowFamilyInfo : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
             Debug.Listeners.Clear();
-            Debug.Listeners.Add(new Logger("FamilyPalette"));
-            Debug.WriteLine("Start ShowPane command");
-            DockablePaneId paneId = new DockablePaneId(App.paneGuid);
-            DockablePane pane = commandData.Application.GetDockablePane(paneId);
-            pane.Show();
-            Debug.WriteLine("Pane is shown succesfully");
+            Debug.Listeners.Add(new Logger("ShowFamilyInfo"));
+
+            //показать форму с полной информацией о семействе
+
             return Result.Succeeded;
         }
     }

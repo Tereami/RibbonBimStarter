@@ -106,7 +106,7 @@ namespace RibbonBimStarter
             this.buttonReplaceImage.Name = "buttonReplaceImage";
             this.buttonReplaceImage.Size = new System.Drawing.Size(300, 23);
             this.buttonReplaceImage.TabIndex = 7;
-            this.buttonReplaceImage.Text = "Заменить (JPG 300x300 px)";
+            this.buttonReplaceImage.Text = "Поменять картинку";
             this.buttonReplaceImage.UseVisualStyleBackColor = true;
             this.buttonReplaceImage.Click += new System.EventHandler(this.buttonReplaceImage_Click);
             // 

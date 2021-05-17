@@ -316,18 +316,22 @@ namespace RibbonBimStarter
 
             PushButtonData pbdCheckFamilies = new PushButtonData("CheckFamilies", "Проверить проект", assemblyPath, "RibbonBimStarter.CommandCheckFamilies");
             pbdCheckFamilies.ToolTip = "Проверить проект на наличие устаревших, дублированных, сторонних и неверно названных семейств";
+            pbdCheckFamilies.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyCheck_large.png")));
+            pbdCheckFamilies.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyCheck_small.png")));
 
             PushButtonData pbdUploadFamily = new PushButtonData("UploadFamily", "Загрузить в базу", assemblyPath, "RibbonBimStarter.CommandUploadFamily");
             pbdUploadFamily.ToolTip = "Загрузить семейство в библиотеку";
+            pbdUploadFamily.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyUpload_large.png")));
+            pbdUploadFamily.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyUpload_small.png")));
 
-            PushButtonData pbdFamilySettings = new PushButtonData("FamilySettings", "Настройки", assemblyPath, "RibbonBimStarter.CommandFamilySettings");
-            pbdFamilySettings.ToolTip = "Настройки библиотеки семейств";
+            //PushButtonData pbdFamilySettings = new PushButtonData("FamilySettings", "Настройки", assemblyPath, "RibbonBimStarter.CommandFamilySettings");
+            //pbdFamilySettings.ToolTip = "Настройки библиотеки семейств";
 
             SplitButton splitFamilies = stacked2[2] as SplitButton;
             splitFamilies.AddPushButton(pbdFamiliesLibrary);
             splitFamilies.AddPushButton(pbdCheckFamilies);
             splitFamilies.AddPushButton(pbdUploadFamily);
-            splitFamilies.AddPushButton(pbdFamilySettings);
+            //splitFamilies.AddPushButton(pbdFamilySettings);
 
 
             Debug.WriteLine("MasterPanel is created");

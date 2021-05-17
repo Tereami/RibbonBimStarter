@@ -124,6 +124,15 @@ namespace RibbonBimStarter
                         return sr;
                     }
 
+                    if(headers.AllKeys.Contains("RbsStatus"))
+                    {
+                        int statusByHeader = int.Parse(headers["RbsStatus"]);
+                        if(statusByHeader >= 400)
+                        {
+                            return new ServerResponse(statusByHeader, headers["Message"]);
+                        }
+                    }
+
                     //string checkFilename0 = headers["Content-Disposition"].Split('=').Last();
 
                     string headerContent = headers["Content-Disposition"];
@@ -227,15 +236,17 @@ namespace RibbonBimStarter
 
 
         public ServerResponse UploadFamily(string name, string guid, string group, string categoryid, string hostid, string description,
-            string rfapath, string jpgpath, List<string> nestedguids = null)
+            string rfapath, string jpgpath300, string jpgpath140, List<string> nestedguidswithversion)
         {
             using (FileStream rfastream = File.Open(rfapath, FileMode.Open))
-            using (FileStream jpgstream = File.Open(jpgpath, FileMode.Open))
+            using (FileStream jpgstream300 = File.Open(jpgpath300, FileMode.Open))
+            using (FileStream jpgstream140 = File.Open(jpgpath140, FileMode.Open))
             {
                 List<UploadFile> files = new List<UploadFile>
                 {
                     new UploadFile("file_rfa", Path.GetFileName(rfapath), rfastream),
-                    new UploadFile("file_jpg", Path.GetFileName(jpgpath), jpgstream)
+                    new UploadFile("file_jpg300", Path.GetFileName(jpgpath300), jpgstream300),
+                    new UploadFile("file_jpg140", Path.GetFileName(jpgpath140), jpgstream140)
                 };
 
                 Dictionary<string, string> values = new Dictionary<string, string>();
@@ -249,9 +260,9 @@ namespace RibbonBimStarter
                 values.Add("revitversion", App.revitVersion);
                 values.Add("description", description);
 
-                if (nestedguids != null)
+                if (nestedguidswithversion != null && nestedguidswithversion.Count > 0)
                 {
-                    values.Add("nested", String.Join(",", nestedguids));
+                    values.Add("nested", String.Join(",", nestedguidswithversion));
                 }
 
                 byte[] response = UploadFiles(GetUrl(_website, "familycreateapp"), files, values);
@@ -260,7 +271,8 @@ namespace RibbonBimStarter
             }
         }
 
-        public ServerResponse UploadFamilyVersion(string guid, int newVersionNumber, string versionDescription, string rfapath)
+        public ServerResponse UploadFamilyVersion(
+            string guid, int newVersionNumber, string versionDescription, string rfapath, List<string> nestedguidswithversion)
         {
             ServerResponse sr = new ServerResponse(400, string.Empty);
 
@@ -276,6 +288,11 @@ namespace RibbonBimStarter
                 values.Add("guid", guid);
                 values.Add("newversionnumber", newVersionNumber.ToString());
                 values.Add("changes", versionDescription);
+
+                if (nestedguidswithversion != null && nestedguidswithversion.Count > 0)
+                {
+                    values.Add("nested", String.Join(",", nestedguidswithversion));
+                }
 
                 byte[] response = UploadFiles(GetUrl(_website, "familycreateversionapp"), files, values);
                 string responseString = Encoding.UTF8.GetString(response);

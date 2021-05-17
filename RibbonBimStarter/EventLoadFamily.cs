@@ -30,6 +30,8 @@ namespace RibbonBimStarter
         public static string familyname;
         public void Execute(UIApplication app)
         {
+            Debug.Listeners.Clear();
+            Debug.Listeners.Add(new Logger("Downloadfamily"));
             Document doc = app.ActiveUIDocument.Document;
             Family fam = null;
             FamilySymbol famSymb = null;

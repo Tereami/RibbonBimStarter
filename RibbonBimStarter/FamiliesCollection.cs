@@ -39,26 +39,27 @@ namespace RibbonBimStarter
             {
                 System.Windows.Forms.MessageBox.Show("Не удалось десериализовать: " + json);
             }
-            foreach (FamilyShortInfo fc in infos)
+            foreach (FamilyShortInfo fsi in infos)
             {
                 FamilyFileInfo familyFileInfo = new FamilyFileInfo();
-                familyFileInfo.Guid = fc.guid;
-                familyFileInfo.Title = fc.name;
-                familyFileInfo.ImagePath = "http://bim-starter3.local/img/families/" + fc.guid + "_small.jpg";
-                familyFileInfo.Description = fc.description;
-                familyFileInfo.HostType = "Тип основы: " + fc.host;
-                familyFileInfo.HostShortName = fc.hostshortname;
-                familyFileInfo.CategoryName = fc.category;
-                familyFileInfo.CategoryTitleAndName = "Категория: " + fc.category;
-                familyFileInfo.CategoryShortName = fc.catshortname;
-                familyFileInfo.DateAdd = "Дата создания: " + fc.dateadd;
-                familyFileInfo.RevitVersion = "Версия Revit: " + fc.revitversion;
+                familyFileInfo.Guid = fsi.guid;
+                familyFileInfo.Title = fsi.name;
+                familyFileInfo.ImagePath = App.settings.Website + "img/families/" + fsi.guid + "_small.jpg";
+                familyFileInfo.ImageBigPath = App.settings.Website + "img/families/" + fsi.guid + ".jpg";
+                familyFileInfo.Description = fsi.description;
+                familyFileInfo.HostType = "Тип основы: " + fsi.host;
+                familyFileInfo.HostShortName = fsi.hostshortname;
+                familyFileInfo.CategoryName = fsi.category;
+                familyFileInfo.CategoryTitleAndName = "Категория: " + fsi.category;
+                familyFileInfo.CategoryShortName = fsi.catshortname;
+                familyFileInfo.DateAdd = "Дата создания: " + fsi.dateadd;
+                familyFileInfo.RevitVersion = "Версия Revit: " + fsi.revitversion;
 
-                familyFileInfo.FamilyName = fc.groupid + "_" + fc.name + " (" + fc.catshortname + "_" + fc.hostshortname + ")";
+                familyFileInfo.FamilyName = fsi.GetFamilyName();
 
                 //familyFileInfo.FamilyName = 
 
-                string folderTitle = fc.groupid + "_" + fc.groupname.Substring(0, 3);
+                string folderTitle = fsi.groupid + "_" + fsi.groupname.Substring(0, 3);
                 familyFileInfo.FolderTitle = folderTitle;
                 if (dictionary.ContainsKey(folderTitle))
                 {

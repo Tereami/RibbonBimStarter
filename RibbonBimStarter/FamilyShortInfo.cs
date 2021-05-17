@@ -23,5 +23,11 @@ namespace RibbonBimStarter
         public string catshortname;
         public string host;
         public string hostshortname;
+
+        public string GetFamilyName()
+        {
+            string name = this.groupid + "_" + this.name + " (" + this.catshortname + "_" + this.hostshortname + ")";
+            return name;
+        }
     }
 }

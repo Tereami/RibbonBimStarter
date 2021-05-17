@@ -29,6 +29,7 @@ namespace RibbonBimStarter
         public string FolderTitle { get; set; }
 
         public string ImagePath { get; set; }
+        public string ImageBigPath { get; set; }
 
         public string Description { get; set; }
 

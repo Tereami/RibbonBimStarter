@@ -163,6 +163,7 @@
     <Compile Include="App.cs" />
     <Compile Include="CommandCheckFamilies.cs" />
     <Compile Include="CommandFamilySettings.cs" />
+    <Compile Include="CommandShowFamilyInfo.cs" />
     <Compile Include="CommandShowPane.cs" />
     <Compile Include="CommandUploadFamily.cs" />
     <Compile Include="EventLoadFamily.cs" />

@@ -22,7 +22,21 @@ namespace RibbonBimStarter
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            TaskDialog.Show("Test", "Hello form Check families");
+            Debug.Listeners.Clear();
+            Debug.Listeners.Add(new Logger("CheckFamilies"));
+
+            //найти семейства без гуидов
+
+            //найти семейства с одинаковым гуидом - значит они продублировались
+
+            //для семейств с гуидами проверить, есть ли такие гуиды в базе, показать семейства с гуидами, которых нет в базе
+
+            //по гуидам сравнить номера версий, показать те у которых не совпадают номера версий
+
+            //по информации из бд проверить, соответствуют ли имена семейств тем что прописаны в базе
+
+            TaskDialog.Show("Test", "Функция в разработке! Здесь будет функционал: найти неверифицированные семейства," +
+                "продублированные с разными именами, устаревшей версии и т.д.");
             return Result.Succeeded;
         }
     }

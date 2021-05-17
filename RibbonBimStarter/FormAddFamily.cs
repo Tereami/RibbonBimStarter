@@ -52,7 +52,7 @@ namespace RibbonBimStarter
             using (System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog())
             {
                 openFileDialog.Multiselect = false;
-                openFileDialog.Filter = "JPEG files (*.jpg)|*.jpg";
+                openFileDialog.Filter = "JPG files (*.jpg)|*.jpg";
 
                 if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {

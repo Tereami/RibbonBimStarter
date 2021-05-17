@@ -10,7 +10,7 @@ as long as you credit the author by linking back and license your new creations 
 This code is provided 'as is'. Author disclaims any implied warranty.
 Zuev Aleksandr, 2021, all rigths reserved.*/
 #endregion
-
+#region usings
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Newtonsoft.Json;
+#endregion
 
 namespace RibbonBimStarter
 {
@@ -41,7 +42,7 @@ namespace RibbonBimStarter
             }
 
             Document famDocForImage = commandData.Application.Application.OpenDocumentFile(rfapath);
-            string imgPath = FamilyImage.ImageCreate(famDocForImage);
+            string famimage = FamilyImage.ImageCreate(famDocForImage);
             famDocForImage.Close(false);
             Document famdoc = commandData.Application.Application.OpenDocumentFile(rfapath);
 
@@ -56,6 +57,7 @@ namespace RibbonBimStarter
             if (responseGroups.Statuscode >= 400)
             {
                 message = "Не удалось загрузить список групп семейств";
+                System.IO.File.Delete(famimage);
                 famdoc.Close();
                 return Result.Failed;
             }
@@ -92,57 +94,89 @@ namespace RibbonBimStarter
                     "Заранее загрузите их в библиотеку и обновите их в данном семействе. " +
                     "Имена семейств: " + Environment.NewLine + string.Join(Environment.NewLine, nestedNoGuid);
                 famdoc.Close(false);
+                System.IO.File.Delete(famimage);
                 return Result.Failed;
             }
             List<string> obsoleteNestedFamNames = new List<string>();
+            List<string> nestedGuidsWithVersion = new List<string>();
             if (nestedGuids.Count > 0)
             {
+                nestedGuidsWithVersion = new List<string>();
                 string nestedGuidsString = String.Join(",", nestedGuids.Keys);
                 ServerResponse responseNested = connect.Request("familygetinfo", new Dictionary<string, string>() { ["guid"] = nestedGuidsString });
                 if (responseNested.Statuscode >= 400)
                 {
                     message = "Error check nested families " + responseNested.ToString();
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
 
-                List<FamilyCard> nestedInfos = null;
+                Dictionary<string, FamilyCard> nestedInfos = null;
 
                 try
                 {
                     var nestedJsonObj = JsonConvert.DeserializeObject(responseNested.Message);
-                    nestedInfos = JsonConvert.DeserializeObject<List<FamilyCard>>(responseNested.Message);
+                    nestedInfos = JsonConvert.DeserializeObject<Dictionary<string, FamilyCard>>(responseNested.Message);
                 }
                 catch
                 {
                     message = responseNested.Message;
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
 
-                foreach (FamilyCard nestedFc in nestedInfos)
+                foreach (var kvp in nestedInfos)
                 {
-                    FamilySymbol nestedFamSymb = nestedGuids[nestedFc.guid];
+                    string curNestedGuid = kvp.Key;
+                    FamilyCard nestedInfo = kvp.Value;
+                    FamilySymbol nestedFamSymb = nestedGuids[curNestedGuid];
+                    string nestedFamilyName = nestedFamSymb.FamilyName;
                     Parameter nestedVersionParam = nestedFamSymb.LookupParameter("RBS_VERSION");
                     if (nestedVersionParam == null)
                     {
                         message = "Нет параметра RBS_VERSION в семействе " + nestedFamSymb.FamilyName;
                         famdoc.Close(false);
+                        System.IO.File.Delete(famimage);
                         return Result.Failed;
                     }
                     int nestedVersion = nestedVersionParam.AsInteger();
-                    int serverVersion = nestedFc.GetLastActualVersionNumber();
+                    int serverVersion = nestedInfo.GetLastActualVersionNumber();
                     if (nestedVersion < serverVersion)
                     {
-                        obsoleteNestedFamNames.Add(nestedFamSymb.FamilyName);
+                        obsoleteNestedFamNames.Add(nestedFamilyName);
+                    }
+                    if (nestedVersion > serverVersion)
+                    {
+                        message = "Некорректная версия вложенного семейства! Обновите из библиотеки: " + nestedFamilyName;
+                        famdoc.Close(false);
+                        System.IO.File.Delete(famimage);
+                        return Result.Failed;
+                    }
+
+                    FamilyShortInfo fsi = nestedInfo.shortinfo;
+                    nestedGuidsWithVersion.Add(curNestedGuid + "_" + nestedVersion.ToString());
+                    string nestedNameFromServer = fsi.GetFamilyName();
+                    if (nestedNameFromServer != nestedFamilyName)
+                    {
+                        using (Transaction renameNestedTransaction = new Transaction(famdoc))
+                        {
+                            renameNestedTransaction.Start("Rename");
+                            nestedFamSymb.Family.Name = nestedNameFromServer;
+                            Debug.WriteLine("Incorrect nested fam name, renamed from " + nestedFamilyName + " to " + nestedNameFromServer);
+                            renameNestedTransaction.Commit();
+                        }
                     }
                 }
             }
+
             if (obsoleteNestedFamNames.Count > 0)
             {
                 message = "Вложенные семейства в данном семействе устарели! Обновите из библиотеки: "
                     + String.Join(",", obsoleteNestedFamNames);
                 famdoc.Close(false);
+                System.IO.File.Delete(famimage);
                 return Result.Failed;
             }
 
@@ -161,15 +195,17 @@ namespace RibbonBimStarter
                 {
                     message = "Incorrect GUID: " + existedGuid;
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
 
-
-                ServerResponse sr = connect.Request("familygetinfo", new Dictionary<string, string>() { ["guid"] = existedGuid });
+                var requestDataForExistedGuid = new Dictionary<string, string>() { ["guid"] = existedGuid, ["getnesting"] = "true" };
+                ServerResponse sr = connect.Request("familygetinfo", requestDataForExistedGuid);
                 if (sr.Statuscode >= 400)
                 {
                     message = sr.ToString();
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
 
@@ -183,6 +219,7 @@ namespace RibbonBimStarter
                 {
                     message = "Не удалось получить информацию о семействе";
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
                 info = checkInfos[existedGuid];
@@ -195,10 +232,11 @@ namespace RibbonBimStarter
                     return Result.Failed;
                 }
 
-                if(int.Parse(App.revitVersion) > int.Parse(info.shortinfo.revitversion))
+                if (int.Parse(App.revitVersion) > int.Parse(info.shortinfo.revitversion))
                 {
                     message = "Версия Revit выше, чем у версии этого семейства в библиотеке. Удалите RBS параметры и загрузите семейство как новое";
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
 
@@ -218,12 +256,14 @@ namespace RibbonBimStarter
                     message = "Семейство устарело! В библиотеке есть более свежая версия: " +
                          App.settings.Website + "family?guid=" + existedGuid;
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
                 if (curVersion > lastActualServerVersion)
                 {
                     message = "Некорректная версия семейства! Скачайте актуальную версию из библиотеки";
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
                 }
 
@@ -231,6 +271,7 @@ namespace RibbonBimStarter
                 if (formSelectUploadType.ShowDialog() != System.Windows.Forms.DialogResult.OK)
                 {
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Cancelled;
                 }
 
@@ -255,11 +296,13 @@ namespace RibbonBimStarter
                         existedGuid,
                         nextVersionNumber,
                         formSelectUploadType.versionDescription,
-                        rfapath);
+                        rfapath,
+                        nestedGuidsWithVersion);
 
                     if (responseNewVersion.Statuscode >= 400)
                     {
                         message = "Error " + sr.Statuscode + ". " + sr.Message;
+                        System.IO.File.Delete(famimage);
                         return Result.Failed;
 
                     }
@@ -277,10 +320,11 @@ namespace RibbonBimStarter
             {
                 string defaultFamName = info == null ? "" : info.shortinfo.name;
                 string defaultDescription = info == null ? "" : info.shortinfo.description;
-                FormAddFamily formAdd = new FormAddFamily(defaultFamName, defaultDescription, imgPath, groups);
+                FormAddFamily formAdd = new FormAddFamily(defaultFamName, defaultDescription, famimage, groups);
                 if (formAdd.ShowDialog() != System.Windows.Forms.DialogResult.OK)
                 {
                     famdoc.Close(false);
+                    System.IO.File.Delete(famimage);
                     return Result.Cancelled;
                 }
 
@@ -309,6 +353,9 @@ namespace RibbonBimStarter
 
                 famdoc.Close(true);
 
+                string jpg300path = FamilyImage.FitImageInSquare(formAdd.Imagepath, 300, 90);
+                string jpg140path = FamilyImage.FitImageInSquare(formAdd.Imagepath, 140, 90);
+
                 ServerResponse sr = connect.UploadFamily(
                     formAdd.FamilyName,
                     newGuid,
@@ -317,22 +364,29 @@ namespace RibbonBimStarter
                     hostId,
                     formAdd.Description,
                     rfapath,
-                    formAdd.Imagepath
+                    jpg300path,
+                    jpg140path,
+                    nestedGuidsWithVersion
                 );
+
+                System.IO.File.Delete(jpg300path);
+                System.IO.File.Delete(jpg140path);
 
                 if (sr.Statuscode >= 400)
                 {
                     message = "Error " + sr.Statuscode + ". " + sr.Message;
+                    System.IO.File.Delete(famimage);
                     return Result.Failed;
-
                 }
-                resultUrl = App.settings.Website + sr.Message.Trim('"');
+                resultUrl = App.settings.Website + sr.Message.Trim('"').Trim('/');
             }
 
-            System.IO.File.Delete(imgPath);
+            System.IO.File.Delete(famimage);
+
             FormFamilyUploadResult formSuccess = new FormFamilyUploadResult(resultUrl, parentUrls);
             formSuccess.ShowDialog();
             return Result.Succeeded;
         }
     }
+
 }

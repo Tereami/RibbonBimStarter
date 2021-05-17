@@ -10,14 +10,19 @@ as long as you credit the author by linking back and license your new creations 
 This code is provided 'as is'. Author disclaims any implied warranty.
 Zuev Aleksandr, 2021, all rigths reserved.*/
 #endregion
-
+#region usings
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Drawing;
 using Autodesk.Revit.DB;
+using System.Drawing.Imaging;
+using DrawingRectangle = System.Drawing.Rectangle;
+using DrawingColor = System.Drawing.Color;
+#endregion
 
 namespace RibbonBimStarter
 {
@@ -81,21 +86,21 @@ namespace RibbonBimStarter
 
                 string name = FamilyDoc.Title.Replace(".rfa", "");
                 string folder = Path.GetDirectoryName(FamilyDoc.PathName);
-                
+
 
                 ImageExportOptions opt = new ImageExportOptions
                 {
                     ZoomType = ZoomFitType.FitToPage,
-                    PixelSize = 300,
+                    PixelSize = 1000,
                     FilePath = Path.Combine(folder, name),
                     FitDirection = FitDirectionType.Vertical,
-                    HLRandWFViewsFileType = ImageFileType.JPEGMedium,
+                    HLRandWFViewsFileType = ImageFileType.JPEGLossless,
                     ImageResolution = ImageResolution.DPI_300,
                     ExportRange = ExportRange.SetOfViews
                 };
 
                 opt.SetViewsAndSheets(viewsId);
-                
+
 
                 FamilyDoc.ExportImage(opt);
 
@@ -161,6 +166,64 @@ namespace RibbonBimStarter
             if (sheets.Count != 0)
                 return sheets.First() as View;
 
+            return null;
+        }
+
+        public static string FitImageInSquare(string jpgpath, int size, int quality)
+        {
+            string finalimgpath = "";
+            using (Image curimg = Image.FromFile(jpgpath) as Bitmap)
+            {
+                DrawingRectangle curRect = new DrawingRectangle(0, 0, curimg.Width, curimg.Height);
+                DrawingRectangle newRect = new DrawingRectangle();
+                Bitmap targetBitmap = new Bitmap(size, size);
+                if (curimg.Width > curimg.Height) //изображение широкое и низкое
+                {
+                    double coef = (double)curimg.Width / (double)size;
+                    int newheight = (int)(curimg.Height / coef);
+                    int topFieldHeight = (size - newheight) / 2;
+                    newRect = new DrawingRectangle(0, topFieldHeight, size, newheight);
+                }
+                else //изображение узкое и высокое
+                {
+                    double coef = (double)curimg.Height / (double)size;
+                    int newwidth = (int)(curimg.Width / coef);
+                    int leftFieldWidth = (size - newwidth) / 2;
+                    newRect = new DrawingRectangle(leftFieldWidth, 0, newwidth, size);
+                }
+
+                using (Bitmap sourceBitmap = new Bitmap(curimg, curimg.Width, curimg.Height))
+                {
+                    using (Graphics g = Graphics.FromImage(targetBitmap))
+                    {
+                        SolidBrush sb = new SolidBrush(DrawingColor.White);
+                        g.FillRectangle(sb, 0, 0, size, size);
+                        g.DrawImage(sourceBitmap, newRect, curRect, GraphicsUnit.Pixel);
+                    }
+                }
+                finalimgpath = jpgpath.Replace(".jpg", "_" + size.ToString() + ".jpg");
+
+                ImageCodecInfo myImageCodecInfo = GetEncoderInfo("image/jpeg");
+                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, (long)quality);
+                EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                targetBitmap.Save(finalimgpath, myImageCodecInfo, myEncoderParameters);
+            }
+            return finalimgpath;
+        }
+
+        private static ImageCodecInfo GetEncoderInfo(String mimeType)
+        {
+            int j;
+            ImageCodecInfo[] encoders;
+            encoders = ImageCodecInfo.GetImageEncoders();
+            for (j = 0; j < encoders.Length; ++j)
+            {
+                if (encoders[j].MimeType == mimeType)
+                    return encoders[j];
+            }
             return null;
         }
     }
