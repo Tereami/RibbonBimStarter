@@ -235,7 +235,7 @@ namespace RibbonBimStarter
         }
 
 
-        public ServerResponse UploadFamily(string name, string guid, string group, string categoryid, string hostid, string description,
+        public ServerResponse UploadFamily(string name, string guid, string group, string categoryid, string hostid, string description, string munufacturer, string document,
             string rfapath, string jpgpath300, string jpgpath140, List<string> nestedguidswithversion)
         {
             using (FileStream rfastream = File.Open(rfapath, FileMode.Open))
@@ -259,6 +259,11 @@ namespace RibbonBimStarter
                 values.Add("host", hostid);
                 values.Add("revitversion", App.revitVersion);
                 values.Add("description", description);
+
+                if(!string.IsNullOrEmpty(munufacturer))
+                    values.Add("munufacturer", munufacturer);
+                if (!string.IsNullOrEmpty(document))
+                    values.Add("document", document);
 
                 if (nestedguidswithversion != null && nestedguidswithversion.Count > 0)
                 {

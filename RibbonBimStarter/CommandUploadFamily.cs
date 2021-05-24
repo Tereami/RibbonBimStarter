@@ -56,9 +56,9 @@ namespace RibbonBimStarter
             ServerResponse responseGroups = connect.Request("loadgroups");
             if (responseGroups.Statuscode >= 400)
             {
-                message = "Не удалось загрузить список групп семейств";
+                message = "Не удалось загрузить список групп семейств: " + responseGroups.Message;
                 System.IO.File.Delete(famimage);
-                famdoc.Close();
+                famdoc.Close(false);
                 return Result.Failed;
             }
             else
@@ -76,6 +76,13 @@ namespace RibbonBimStarter
             List<string> nestedNoGuid = new List<string>();
             foreach (Family fam in nestedSharedFams)
             {
+                if(fam.GetFamilySymbolIds().Count == 0)
+                {
+                    message = "Неиспользуемое вложенное общее семейство: : " + fam.Name;
+                    System.IO.File.Delete(famimage);
+                    famdoc.Close(false);
+                    return Result.Failed;
+                }
                 FamilySymbol fsymb = famdoc.GetElement(fam.GetFamilySymbolIds().First()) as FamilySymbol;
                 Parameter guidParam = fsymb.LookupParameter("RBS_GUID");
                 if (guidParam == null || !guidParam.HasValue)
@@ -363,6 +370,8 @@ namespace RibbonBimStarter
                     categoryId,
                     hostId,
                     formAdd.Description,
+                    formAdd.Munufacturer,
+                    formAdd.Document,
                     rfapath,
                     jpg300path,
                     jpg140path,
