@@ -26,7 +26,13 @@ namespace RibbonBimStarter
 
         public string GetFamilyName()
         {
-            string name = this.groupid + "_" + this.name + " (" + this.catshortname + "_" + this.hostshortname + ")";
+            string name = BuildFamilyName(this.groupid, this.name, this.catshortname, this.hostshortname);
+            return name;
+        }
+
+        public static string BuildFamilyName(string Groupid, string Name, string Catshortname, string Hostshortname)
+        {
+            string name = Groupid + "_" + Name + " (" + Catshortname + "_" + Hostshortname + ")";
             return name;
         }
     }

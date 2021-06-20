@@ -186,6 +186,12 @@
     <Compile Include="FormAddFamily.Designer.cs">
       <DependentUpon>FormAddFamily.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormCheckFamilies.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormCheckFamilies.Designer.cs">
+      <DependentUpon>FormCheckFamilies.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormFamilyUploadResult.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -224,6 +230,9 @@
   <ItemGroup>
     <EmbeddedResource Include="FormAddFamily.resx">
       <DependentUpon>FormAddFamily.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormCheckFamilies.resx">
+      <DependentUpon>FormCheckFamilies.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormFamilyUploadResult.resx">
       <DependentUpon>FormFamilyUploadResult.cs</DependentUpon>
