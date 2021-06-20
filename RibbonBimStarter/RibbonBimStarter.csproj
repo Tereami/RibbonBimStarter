@@ -192,6 +192,12 @@
     <Compile Include="FormFamilyUploadResult.Designer.cs">
       <DependentUpon>FormFamilyUploadResult.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormReplaceFamilyInProject.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormReplaceFamilyInProject.Designer.cs">
+      <DependentUpon>FormReplaceFamilyInProject.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormUploadReplaceOrNewFamily.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -221,6 +227,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormFamilyUploadResult.resx">
       <DependentUpon>FormFamilyUploadResult.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormReplaceFamilyInProject.resx">
+      <DependentUpon>FormReplaceFamilyInProject.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormUploadReplaceOrNewFamily.resx">
       <DependentUpon>FormUploadReplaceOrNewFamily.cs</DependentUpon>

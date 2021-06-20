@@ -124,13 +124,18 @@ namespace RibbonBimStarter
                         return sr;
                     }
 
-                    if(headers.AllKeys.Contains("RbsStatus"))
+                    if (headers.AllKeys.Contains("RbsStatus"))
                     {
                         int statusByHeader = int.Parse(headers["RbsStatus"]);
-                        if(statusByHeader >= 400)
+                        if (statusByHeader >= 400)
                         {
                             return new ServerResponse(statusByHeader, headers["Message"]);
                         }
+                    }
+
+                    if (headers.AllKeys.Contains("Message"))
+                    {
+                        System.Windows.Forms.MessageBox.Show(headers["Message"]);
                     }
 
                     //string checkFilename0 = headers["Content-Disposition"].Split('=').Last();
@@ -260,7 +265,7 @@ namespace RibbonBimStarter
                 values.Add("revitversion", App.revitVersion);
                 values.Add("description", description);
 
-                if(!string.IsNullOrEmpty(munufacturer))
+                if (!string.IsNullOrEmpty(munufacturer))
                     values.Add("munufacturer", munufacturer);
                 if (!string.IsNullOrEmpty(document))
                     values.Add("document", document);

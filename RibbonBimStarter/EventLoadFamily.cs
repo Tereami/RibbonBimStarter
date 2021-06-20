@@ -28,29 +28,72 @@ namespace RibbonBimStarter
     {
         public static string familyguid;
         public static string familyname;
+
         public void Execute(UIApplication app)
         {
             Debug.Listeners.Clear();
             Debug.Listeners.Add(new Logger("Downloadfamily"));
             Document doc = app.ActiveUIDocument.Document;
-            Family fam = null;
-            FamilySymbol famSymb = null;
+            
 
-            List<Family> checkPreloadedFams = new FilteredElementCollector(doc)
-                    .WhereElementIsNotElementType()
-                    .OfClass(typeof(Family))
-                    .Where(i => i.Name.Equals(familyname))
-                    .Cast<Family>()
-                    .ToList();
-            if (checkPreloadedFams.Count > 0)
+            WebConnection connect = new WebConnection(App.settings.Email, App.settings.Password, App.settings.Website);
+            ServerResponse famInfoResponse = connect.Request("familygetinfo", new Dictionary<string, string>() { ["guid"] = familyguid });
+            if (famInfoResponse.Statuscode >= 400)
             {
-                fam = checkPreloadedFams[0];
-                Debug.WriteLine("Family has already loaded " + familyname);
+                TaskDialog.Show("Ошибка", famInfoResponse.Message);
+                return;
             }
-            else
+
+            Dictionary<string, FamilyCard> checkInfos = null;
+            try
+            {
+                checkInfos = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, FamilyCard>>(famInfoResponse.Message);
+            }
+            catch { }
+            if (checkInfos == null || checkInfos.Count == 0)
+            {
+                TaskDialog.Show("Ошибка", "Не удалось получить информацию о семействе");
+                return;
+            }
+            FamilyCard info = checkInfos[familyguid];
+            List<FamilyVersion> versions = info.versions
+                .Where(v => v.status == "ok").ToList();
+
+            Family fam = GetFamilyNyName(familyname, doc);
+            FamilySymbol famSymb = null;
+            bool loadFamilyFromServer = false;
+
+            if (fam != null)
+            {
+                famSymb = GetFamilySymbol(fam);
+                if (famSymb == null) return;
+                
+                int existedFamVersionNum = -1;
+                Parameter versionParam = famSymb.LookupParameter("RBS_VERSION");
+                if (versionParam != null)
+                    existedFamVersionNum = versionParam.AsInteger();
+
+                List<FamilyVersion> newerVersions = versions.Where(v => v.version > existedFamVersionNum).ToList();
+                if(newerVersions.Count > 0)
+                {
+                    FormReplaceFamilyInProject formReplace = new FormReplaceFamilyInProject(familyname, existedFamVersionNum, newerVersions);
+                    formReplace.ShowDialog();
+
+                    if (formReplace.DialogResult == System.Windows.Forms.DialogResult.Yes)
+                        loadFamilyFromServer = true;
+                    else if (formReplace.DialogResult == System.Windows.Forms.DialogResult.No)
+                        loadFamilyFromServer = false;
+                    else
+                    {
+                        Debug.WriteLine("Cancelled by user");
+                        return;
+                    }
+                }
+            }
+
+            if(fam == null || loadFamilyFromServer == true)
             {
                 Debug.WriteLine("Start download family: " + familyguid);
-                WebConnection connect = new WebConnection(App.settings.Email, App.settings.Password, App.settings.Website);
                 ServerResponse sr = connect.DownloadFamily(familyguid, familyname);
                 if(sr.Statuscode >= 400)
                 {
@@ -79,24 +122,17 @@ namespace RibbonBimStarter
                     }
                     //string familyname = Path.GetFileNameWithoutExtension(fampath);
 
-                    List<Family> fams = new FilteredElementCollector(doc)
-                        .WhereElementIsNotElementType()
-                        .OfClass(typeof(Family))
-                        .Where(i => i.Name.Equals(familyname))
-                        .Cast<Family>()
-                        .ToList();
-                    if (fams.Count == 0)
+                    fam = GetFamilyNyName(familyname, doc);
+                    if (fam == null)
                     {
                         TaskDialog.Show("Ошибка", "Не удалось найти загруженное семейство " + familyname);
                         Debug.WriteLine("Loaded family isnt found: " + familyname);
                         return;
                     }
-                    fam = fams[0];
-                    doc.Regenerate();
                     t.Commit();
                 }
             }
-            famSymb = doc.GetElement(fam.GetFamilySymbolIds().First()) as FamilySymbol;
+            famSymb = GetFamilySymbol(fam);
             if (!famSymb.IsActive)
             {
                 using (Transaction t2 = new Transaction(doc))
@@ -115,6 +151,31 @@ namespace RibbonBimStarter
         public string GetName()
         {
             return "Bim-Starter_LoadFamily_Event";
+        }
+
+        private FamilySymbol GetFamilySymbol(Family fam)
+        {
+            IEnumerable<ElementId> symbIds = fam.GetFamilySymbolIds();
+            if (symbIds.Count() == 0)
+            {
+                TaskDialog.Show("Ошибка", "Семейство не имеет типоразмеров: " + fam.Name);
+                return null;
+            }
+            FamilySymbol symb = fam.Document.GetElement(symbIds.First()) as FamilySymbol;
+            return symb;
+        }
+
+        private Family GetFamilyNyName(string familyname, Document doc)
+        {
+            IEnumerable<Family> fams = new FilteredElementCollector(doc)
+                    .WhereElementIsNotElementType()
+                    .OfClass(typeof(Family))
+                    .Where(i => i.Name.Equals(familyname))
+                    .Cast<Family>();
+            if (fams.Count() == 0)
+                return null;
+            else
+                return fams.First();
         }
     }
 }
