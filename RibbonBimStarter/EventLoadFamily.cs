@@ -93,46 +93,11 @@ namespace RibbonBimStarter
 
             if(fam == null || loadFamilyFromServer == true)
             {
-                Debug.WriteLine("Start download family: " + familyguid);
-                ServerResponse sr = connect.DownloadFamily(familyguid, familyname);
-                if(sr.Statuscode >= 400)
-                {
-                    TaskDialog.Show("Error " + sr.Statuscode.ToString(), sr.Message);
-                    return;
-                }
-                string fampath = sr.Message;
-                
-                using (Transaction t = new Transaction(doc))
-                {
-                    t.Start("Load family");
-                    bool loadSuccess = false;
-                    try
-                    {
-                        loadSuccess = doc.LoadFamily(fampath, new FamilyLoadOptions(), out fam);
-                    }
-                    catch
-                    {
-                        Debug.WriteLine("Unable to load family: " + fampath);
-                        return;
-                    }
-                    if (!loadSuccess)
-                    {
-                        TaskDialog.Show("Ошибка", "Не удалось загрузить " + fampath);
-                        return;
-                    }
-                    //string familyname = Path.GetFileNameWithoutExtension(fampath);
-
-                    fam = GetFamilyNyName(familyname, doc);
-                    if (fam == null)
-                    {
-                        TaskDialog.Show("Ошибка", "Не удалось найти загруженное семейство " + familyname);
-                        Debug.WriteLine("Loaded family isnt found: " + familyname);
-                        return;
-                    }
-                    t.Commit();
-                }
+                fam = EventLoadFamily.LoadFamily(connect, doc, familyguid, familyname);
+                if (fam == null) return;
             }
-            famSymb = GetFamilySymbol(fam);
+           
+            /*famSymb = GetFamilySymbol(fam);
             if (!famSymb.IsActive)
             {
                 using (Transaction t2 = new Transaction(doc))
@@ -144,8 +109,52 @@ namespace RibbonBimStarter
                 }
             }
 
-            app.ActiveUIDocument.PostRequestForElementTypePlacement(famSymb);
-            Debug.WriteLine("Family is loaded succesfully");
+            app.ActiveUIDocument.PostRequestForElementTypePlacement(famSymb);*/
+            Debug.WriteLine("Family has loaded succesfully");
+        }
+
+        public static Family LoadFamily(WebConnection connect, Document doc, string famGuid, string famName)
+        {
+            Family fam = null;
+            Debug.WriteLine("Start download family: " + famGuid);
+            ServerResponse sr = connect.DownloadFamily(famGuid, famName);
+            if (sr.Statuscode >= 400)
+            {
+                TaskDialog.Show("Error " + sr.Statuscode.ToString(), sr.Message);
+                return null;
+            }
+            string fampath = sr.Message;
+
+            using (Transaction t = new Transaction(doc))
+            {
+                t.Start("Load family " + famName);
+                bool loadSuccess = false;
+                try
+                {
+                    loadSuccess = doc.LoadFamily(fampath, new FamilyLoadOptions(), out fam);
+                }
+                catch
+                {
+                    Debug.WriteLine("Unable to load family: " + fampath);
+                    return null;
+                }
+                if (!loadSuccess)
+                {
+                    TaskDialog.Show("Ошибка", "Не удалось загрузить " + fampath);
+                    return null; ;
+                }
+                //string familyname = Path.GetFileNameWithoutExtension(fampath);
+
+                /*fam = GetFamilyNyName(familyname, doc);
+                if (fam == null)
+                {
+                    TaskDialog.Show("Ошибка", "Не удалось найти загруженное семейство " + familyname);
+                    Debug.WriteLine("Loaded family isnt found: " + familyname);
+                    return;
+                }*/
+                t.Commit();
+            }
+            return fam;
         }
 
         public string GetName()

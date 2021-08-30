@@ -66,5 +66,11 @@ namespace RibbonBimStarter
         {
             this.Close();
         }
+
+        private void buttonRefreshAll_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Yes;
+            this.Close();
+        }
     }
 }

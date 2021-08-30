@@ -27,16 +27,6 @@ namespace RibbonBimStarter
             Debug.Listeners.Clear();
             Debug.Listeners.Add(new Logger("CheckFamilies"));
 
-            //найти семейства без гуидов
-
-            //найти семейства с одинаковым гуидом - значит они продублировались
-
-            //для семейств с гуидами проверить, есть ли такие гуиды в базе, показать семейства с гуидами, которых нет в базе
-
-            //по гуидам сравнить номера версий, показать те у которых не совпадают номера версий
-
-            //по информации из бд проверить, соответствуют ли имена семейств тем что прописаны в базе
-
 
             Document doc = commandData.Application.ActiveUIDocument.Document;
             List<Family> families = new FilteredElementCollector(doc)
@@ -51,12 +41,12 @@ namespace RibbonBimStarter
             Dictionary<string, List<Family>> guidsAndFamilies = new Dictionary<string, List<Family>>();
             List<Family> invalidSymbols = new List<Family>();
             List<Family> noGuids = new List<Family>();
-            
 
-            foreach(Family fam in families)
+
+            foreach (Family fam in families)
             {
                 IEnumerable<ElementId> symbIds = fam.GetFamilySymbolIds();
-                if(symbIds.Count() == 0)
+                if (symbIds.Count() == 0)
                 {
                     invalidSymbols.Add(fam);
                     continue;
@@ -70,7 +60,7 @@ namespace RibbonBimStarter
                     continue;
                 }
                 string guid = guidParam.AsString();
-                if(guidsAndFamilies.ContainsKey(guid))
+                if (guidsAndFamilies.ContainsKey(guid))
                 {
                     guidsAndFamilies[guid].Add(fam);
                 }
@@ -104,14 +94,14 @@ namespace RibbonBimStarter
             {
                 Family fam = guidsAndFamilies[kvp.Key][0];
                 FamilyCard info = kvp.Value;
-                if(info.exists == false)
+                if (info.exists == false)
                 {
                     noGuids.Add(fam);
                     continue;
                 }
                 string famnameInProject = fam.Name;
                 string famNameByServer = info.shortinfo.GetFamilyName();
-                if(famnameInProject != famNameByServer)
+                if (famnameInProject != famNameByServer)
                 {
                     incorrectNames.Add(new[] { fam.Id.IntegerValue.ToString(), famnameInProject, famNameByServer, kvp.Key });
                 }
@@ -125,7 +115,7 @@ namespace RibbonBimStarter
                 int versionInProject = symb.LookupParameter("RBS_VERSION").AsInteger();
                 FamilyVersion lastVersion = info.GetLastActualVersion();
                 int versionInLibrary = lastVersion.version;
-                if(versionInLibrary > versionInProject)
+                if (versionInLibrary > versionInProject)
                 {
                     string[] obsoleteInfo = new[]
                     {
@@ -141,7 +131,36 @@ namespace RibbonBimStarter
             }
 
             FormCheckFamilies form = new FormCheckFamilies(duplicates, obsoleteVersions, noGuids, incorrectNames);
-            form.ShowDialog();
+            var formResult = form.ShowDialog();
+            if (formResult == System.Windows.Forms.DialogResult.Yes)
+            {
+                int loadfamcount = 0;
+                int errorcount = 0;
+                string errorFamsNames = "";
+                foreach (var kvp in obsoleteVersions)
+                {
+                    string famguid = kvp[5];
+                    string famname = kvp[1];
+                    Family loadedFam = EventLoadFamily.LoadFamily(connect, doc, famguid, famname);
+                    if (loadedFam == null)
+                    {
+                        errorcount++;
+                    }
+                    else
+                    {
+                        loadfamcount++;
+                        errorFamsNames += famname + " ";
+                    }
+
+                }
+                string msg = "Успешно обновлено семейств: " + loadfamcount.ToString();
+                if (errorcount > 0)
+                {
+                    msg += ", не удалось обновить: " + errorFamsNames;
+                }
+
+                TaskDialog.Show("Обновление семейств", msg);
+            }
 
             return Result.Succeeded;
         }
