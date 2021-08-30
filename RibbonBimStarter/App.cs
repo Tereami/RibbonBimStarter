@@ -306,8 +306,9 @@ namespace RibbonBimStarter
                 splitParametrization.AddPushButton(CreateButtonData("RevitPlatesWeight", "Command"));
             }
             splitParametrization.AddPushButton(CreateButtonData("IngradParametrisation", "Cmd"));
+            splitParametrization.AddPushButton(CreateButtonData("ColumnsParametrisation", "Command"));
 
-            
+
             PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", "Семейства", assemblyPath, "RibbonBimStarter.CommandShowPane");
             pbdFamiliesLibrary.ToolTip = "Открыть палитру библиотеки семейств";
             string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "FamilyLibrary_data");
