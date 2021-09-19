@@ -206,7 +206,7 @@ namespace RibbonBimStarter
             sbFilters.AddPushButton(pbdDeleteFilters);
 
             PushButtonData pbdOpenSheets = CreateButtonData("OpenSheets", "Command");
-            PushButtonData pbdViewNumbers = CreateButtonData("ViewportNumbers", "CommandViewportNumbers");
+            PushButtonData pbdViewNumbers = CreateButtonData("SuperSetNumber", "Command");
             PushButtonData pbdTemplates = CreateButtonData("ViewTemplateUtils", "CommandCopyTemplate");
             panel.AddStackedItems(pbdOpenSheets, pbdViewNumbers, pbdTemplates);
             Debug.WriteLine("ViewPanel is created");
