@@ -97,7 +97,7 @@ namespace RibbonBimStarter
                 if (fam == null) return;
             }
            
-            /*famSymb = GetFamilySymbol(fam);
+            famSymb = GetFamilySymbol(fam);
             if (!famSymb.IsActive)
             {
                 using (Transaction t2 = new Transaction(doc))
@@ -109,8 +109,8 @@ namespace RibbonBimStarter
                 }
             }
 
-            app.ActiveUIDocument.PostRequestForElementTypePlacement(famSymb);*/
-            Debug.WriteLine("Family has loaded succesfully");
+            app.ActiveUIDocument.PostRequestForElementTypePlacement(famSymb);
+            //Debug.WriteLine("Family has loaded succesfully");
         }
 
         public static Family LoadFamily(WebConnection connect, Document doc, string famGuid, string famName)

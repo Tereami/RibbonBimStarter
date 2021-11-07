@@ -179,6 +179,7 @@
     </Compile>
     <Compile Include="FamilyLoadOptions.cs" />
     <Compile Include="FamilyShortInfo.cs" />
+    <Compile Include="FamilySuperGroupInfo.cs" />
     <Compile Include="FamilyVersion.cs" />
     <Compile Include="FormAddFamily.cs">
       <SubType>Form</SubType>

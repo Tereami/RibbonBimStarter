@@ -26,10 +26,14 @@ namespace RibbonBimStarter
     {
         public static SortedDictionary<string, ObservableCollection<FamilyFileInfo>> convertJsonToFamilies(string json)
         {
+            Dictionary<int[], string> groups = new Dictionary<int[], string>();
+
             SortedDictionary<string, ObservableCollection<FamilyFileInfo>> dictionary =
                 new SortedDictionary<string, ObservableCollection<FamilyFileInfo>>();
 
             List<FamilyShortInfo> infos = new List<FamilyShortInfo>();
+
+            FamilySuperGroupInfo.Activate();
 
             try
             {
@@ -56,11 +60,13 @@ namespace RibbonBimStarter
                 familyFileInfo.RevitVersion = "Версия Revit: " + fsi.revitversion;
 
                 familyFileInfo.FamilyName = fsi.GetFamilyName();
+                familyFileInfo.FolderTitle = fsi.groupname;
 
                 //familyFileInfo.FamilyName = 
 
-                string folderTitle = fsi.groupid + "_" + fsi.groupname.Substring(0, 3);
-                familyFileInfo.FolderTitle = folderTitle;
+                string groupIdText = fsi.groupid;
+                string folderTitle = FamilySuperGroupInfo.GetSupergroupByIndex(groupIdText);
+                
                 if (dictionary.ContainsKey(folderTitle))
                 {
                     dictionary[folderTitle].Add(familyFileInfo);
@@ -72,7 +78,7 @@ namespace RibbonBimStarter
                         familyFileInfo
                     });
                 }
-                if (dictionary.ContainsKey("000_Все"))
+                /*if (dictionary.ContainsKey("000_Все"))
                 {
                     dictionary["000_Все"].Add(familyFileInfo);
                 }
@@ -82,7 +88,7 @@ namespace RibbonBimStarter
                     {
                         familyFileInfo
                     });
-                }
+                }*/
             }
             return dictionary;
         }
