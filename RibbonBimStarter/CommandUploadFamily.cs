@@ -344,8 +344,13 @@ namespace RibbonBimStarter
                     FamilyParameter versionParam = null;
                     if (uploadOption == UploadOption.FirstLoad)
                     {
+#if R2022 || R2023
+                        guidParam = fman.AddParameter("RBS_GUID", GroupTypeId.IdentityData, SpecTypeId.String.Text, false);  
+                        versionParam = fman.AddParameter("RBS_VERSION", GroupTypeId.IdentityData, SpecTypeId.String.Text, false);
+#else
                         guidParam = fman.AddParameter("RBS_GUID", BuiltInParameterGroup.PG_IDENTITY_DATA, ParameterType.Text, false);
                         versionParam = fman.AddParameter("RBS_VERSION", BuiltInParameterGroup.PG_IDENTITY_DATA, ParameterType.Integer, false);
+#endif
                     }
                     else
                     {

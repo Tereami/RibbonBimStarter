@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Autodesk.Revit.UI;
+using Autodesk.Revit.ApplicationServices;
 using System.Windows.Media.Imaging;
 using Autodesk.Revit.UI.Events;
 using System.Diagnostics;
@@ -37,6 +38,8 @@ namespace RibbonBimStarter
 
         public static string revitVersion = "2020";
 
+        public static LanguageType curUiLanguage = LanguageType.English_USA;
+
         public Result OnStartup(UIControlledApplication application)
         {
             Debug.Listeners.Clear();
@@ -48,7 +51,9 @@ namespace RibbonBimStarter
             //ribbonPath = Path.Combine(assemblyFolder, "RibbonBimStarterData");
             ribbonPath = Path.Combine(appdataFolder, @"Autodesk\Revit\Addins\20xx\BimStarter");
             revitVersion = application.ControlledApplication.VersionNumber;
-            Debug.WriteLine("Ribbin path: " + ribbonPath);
+            curUiLanguage = application.ControlledApplication.Language;
+
+            Debug.WriteLine("Ribbon path: " + ribbonPath);
 
             settings = SettingsStorage.LoadSettings();
             if(settings == null)
@@ -118,7 +123,9 @@ namespace RibbonBimStarter
         private void CreateAboutRibbon(UIControlledApplication uiApp, string tabName)
         {
             Debug.WriteLine("AboutPanel started...");
-            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "About");
+
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "О программе" : "About";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
             panel.AddItem(CreateButtonData("AboutWeandrevit", "CommandAbout2"));
             //panel.AddItem(CreateButtonData("AskBimQuestion", "CommandAskBimQuestion"));
             Debug.WriteLine("AboutPanel is created");
@@ -130,7 +137,8 @@ namespace RibbonBimStarter
         private void CreateRebarRibbon(UIControlledApplication uiApp, string tabName)
         {
             Debug.WriteLine("RebarPanel started...");
-            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Армирование");
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Армирование" : "Reinforcement";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
             SplitButton areaRebarSplitButton = panel
                 .AddItem(new SplitButtonData("AreaRebarSplitButton", "Фоновое"))
                 as SplitButton;
@@ -156,17 +164,17 @@ namespace RibbonBimStarter
         private void CreateTableRibbon(UIControlledApplication uiApp, string tabName)
         {
             Debug.WriteLine("TablePanel started...");
-            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Таблицы");
+
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Таблицы" : "Schedules";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
 
             PushButtonData dataRebarSketch = CreateButtonData("RebarSketch", "CommandCreatePictures3");
-            dataRebarSketch.Text = "Вед-ть\nдеталей";
             panel.AddItem(dataRebarSketch);
 
             PushButtonData dataAutonumber = CreateButtonData("Autonumber", "CommandStart");
             panel.AddItem(dataAutonumber);
 
             PushButtonData dataCollapseRebarSchedule = CreateButtonData("CollapseRebarSchedule", "Command");
-            dataCollapseRebarSchedule.Text = "Подчистить\nВРС";
             panel.AddItem(dataCollapseRebarSchedule);
 
             PushButtonData pbdRefreshSchedules = CreateButtonData("BatchPrintYay", "CommandRefreshSchedules");
@@ -183,7 +191,9 @@ namespace RibbonBimStarter
         private void CreateViewRibbon(UIControlledApplication uiApp, string tabName)
         {
             Debug.WriteLine("ViewPanel started...");
-            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Виды и листы");
+
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Виды и листы" : "Views and sheets";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
 
             PushButtonData pbdPrint = CreateButtonData("BatchPrintYay", "CommandBatchPrint");
             panel.AddItem(pbdPrint);
@@ -215,13 +225,14 @@ namespace RibbonBimStarter
         private void CreateModelingRibbon(UIControlledApplication uiApp, string tabName)
         {
             Debug.WriteLine("ModelingPanel started...");
-            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "Моделирование");
+
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Моделирование" : "Modeling";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
 
             SplitButton splitHolesElev = panel
                 .AddItem(new SplitButtonData("HolesElevSplitButton", "Отверстия"))
                 as SplitButton;
             PushButtonData pbdElevations = CreateButtonData("RevitElementsElevation", "Command");
-            pbdElevations.Text = "Определить\nотметки";
             splitHolesElev.AddPushButton(pbdElevations);
 
             splitHolesElev.AddSeparator();
@@ -229,11 +240,9 @@ namespace RibbonBimStarter
             splitHolesElev.AddPushButton(pbdHolesSettings);
 
             PushButtonData pbdPropertiesCopy = CreateButtonData("PropertiesCopy", "CommandPropertiesCopy");
-            pbdPropertiesCopy.Text = "Супер-\nкисточка";
             panel.AddItem(pbdPropertiesCopy);
 
             PushButtonData pbdGroupedAssembly = CreateButtonData("GroupedAssembly", "CommandSuperAssembly");
-            pbdGroupedAssembly.Text = "Сборка-\nгруппа";
             panel.AddItem(pbdGroupedAssembly);
 
             //PushButtonData pbd = CreateButtonData("", "");
@@ -243,19 +252,15 @@ namespace RibbonBimStarter
                 as SplitButton;
 
             PushButtonData pbdAutoJoin = CreateButtonData("AutoJoin", "CommandAutoJoin");
-            pbdAutoJoin.Text = "Авто\nсоединение";
             splitJoin.AddPushButton(pbdAutoJoin);
 
             PushButtonData pbdJoinByOrder = CreateButtonData("AutoJoin", "CommandJoinByOrder");
-            pbdJoinByOrder.Text = "Задать\nприоритет";
             splitJoin.AddPushButton(pbdJoinByOrder);
 
             PushButtonData pbdAutoUnjoin = CreateButtonData("AutoJoin", "CommandBatchUnjoin");
-            pbdAutoUnjoin.Text = "Авто\nразделение";
             splitJoin.AddPushButton(pbdAutoUnjoin);
 
             PushButtonData pbdAutoCut = CreateButtonData("AutoJoin", "CommandAutoCut");
-            pbdAutoCut.Text = "Авто\nвырезание";
             splitJoin.AddPushButton(pbdAutoCut);
             splitJoin.AddPushButton(CreateButtonData("AutoJoin", "CommandCreateCope"));
 
@@ -278,7 +283,9 @@ namespace RibbonBimStarter
         private void CreateMasterRibbon(UIControlledApplication uiApp, string tabName)
         {
             Debug.WriteLine("MasterPanel started...");
-            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, "BIM-мастер");
+
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "BIM-мастер" : "BIM-master";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
 
             SplitButtonData sbdAddParams = new SplitButtonData("FamilyParametersSplitButton", "Добавить параметры");
             PushButtonData pbdClearGuids = CreateButtonData("ClearUnusedGUIDs", "CommandClear");
@@ -308,20 +315,25 @@ namespace RibbonBimStarter
             splitParametrization.AddPushButton(CreateButtonData("IngradParametrisation", "Cmd"));
             splitParametrization.AddPushButton(CreateButtonData("ColumnsParametrisation", "Command"));
 
-
-            PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", "Семейства", assemblyPath, "RibbonBimStarter.CommandShowPane");
-            pbdFamiliesLibrary.ToolTip = "Открыть палитру библиотеки семейств";
+            string libraryButtonTitle = App.curUiLanguage == LanguageType.Russian ? "Семейства" : "Families";
+            PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", libraryButtonTitle, assemblyPath, "RibbonBimStarter.CommandShowPane");
+            pbdFamiliesLibrary.ToolTip = App.curUiLanguage == LanguageType.Russian ? "Открыть палитру библиотеки семейств" : "Open family library palette";
             string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "FamilyLibrary_data");
             pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_large.png")));
             pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_small.png")));
 
-            PushButtonData pbdCheckFamilies = new PushButtonData("CheckFamilies", "Проверить проект", assemblyPath, "RibbonBimStarter.CommandCheckFamilies");
-            pbdCheckFamilies.ToolTip = "Проверить проект на наличие устаревших, дублированных, сторонних и неверно названных семейств";
+            string checkProjectButtonTitle = App.curUiLanguage == LanguageType.Russian ? "Проверить проект" : "Check project";
+            PushButtonData pbdCheckFamilies = new PushButtonData("CheckFamilies", checkProjectButtonTitle, assemblyPath, "RibbonBimStarter.CommandCheckFamilies");
+            pbdCheckFamilies.ToolTip = App.curUiLanguage == LanguageType.Russian 
+                ? "Проверить проект на наличие устаревших, дублированных, сторонних и неверно названных семейств"
+                : "Check project for old, incorrect, extraneous and duplicated families";
+            
             pbdCheckFamilies.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyCheck_large.png")));
             pbdCheckFamilies.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyCheck_small.png")));
 
-            PushButtonData pbdUploadFamily = new PushButtonData("UploadFamily", "Загрузить в базу", assemblyPath, "RibbonBimStarter.CommandUploadFamily");
-            pbdUploadFamily.ToolTip = "Загрузить семейство в библиотеку";
+            string uploadFamilyButtonTitle = App.curUiLanguage == LanguageType.Russian ? "Загрузить в базу" : "Load to the library";
+            PushButtonData pbdUploadFamily = new PushButtonData("UploadFamily", uploadFamilyButtonTitle, assemblyPath, "RibbonBimStarter.CommandUploadFamily");
+            pbdUploadFamily.ToolTip = App.curUiLanguage == LanguageType.Russian ? "Загрузить семейство в библиотеку" : "Load a family to the library";
             pbdUploadFamily.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyUpload_large.png")));
             pbdUploadFamily.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyUpload_small.png")));
 
@@ -354,9 +366,18 @@ namespace RibbonBimStarter
             string dataPath = Path.Combine(ribbonPath, assemblyName + "_data");
             string largeIcon = Path.Combine(dataPath, className + "_large.png");
             string smallIcon = Path.Combine(dataPath, className + "_small.png");
-            string textPath = Path.Combine(dataPath, className + ".txt");
+
+            string langTitle = Enum.GetName(typeof(LanguageType), App.curUiLanguage);
+            string textPath = Path.Combine(dataPath, className + "." + langTitle + ".txt");
+            if(!File.Exists(textPath))
+                textPath = Path.Combine(dataPath, className + ".txt");
+
+
             string[] text = File.ReadAllLines(textPath);
             string title = text[0];
+            if (title.Contains("/"))
+               title =  title.Replace("/", "\n");
+            
             string tooltip = text[1];
             string url = text[2];
 
@@ -390,7 +411,9 @@ namespace RibbonBimStarter
 
             DockablePaneId paneId = new DockablePaneId(paneGuid);
 
-            uiapp.RegisterDockablePane(paneId, "Библиотека семейств", famPane);
+            string paneTitle = App.curUiLanguage == LanguageType.Russian ? "Библиотека семейств" : "Family library";
+
+            uiapp.RegisterDockablePane(paneId, paneTitle, famPane);
             //uiapp.ViewActivated += new EventHandler<ViewActivatedEventArgs>(App_ViewActivated);
             Debug.WriteLine("Dockable pane is registered");
         }
