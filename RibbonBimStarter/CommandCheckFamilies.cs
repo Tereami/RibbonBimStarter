@@ -70,6 +70,12 @@ namespace RibbonBimStarter
                 }
             }
 
+            if(guidsAndFamilies.Count == 0)
+            {
+                TaskDialog.Show("Ошибка", "В проекте нет семейств из библиотеки Bim-Starter");
+                return Result.Failed;
+            }
+
             Dictionary<string, List<Family>> duplicates = guidsAndFamilies
                 .Where(i => i.Value.Count > 1)
                 .ToDictionary(i => i.Key, i => i.Value);
