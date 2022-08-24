@@ -100,6 +100,8 @@ namespace RibbonBimStarter
                 CreateRebarRibbon(application, tabName);
                 CreateTableRibbon(application, tabName);
                 CreateModelingRibbon(application, tabName);
+                CreateParametrisationRibbon(application, tabName);
+                CreateInstrumentsRibbon(application, tabName);
                 CreateMasterRibbon(application, tabName);
             }
             catch (Exception ex)
@@ -136,26 +138,26 @@ namespace RibbonBimStarter
 
         private void CreateRebarRibbon(UIControlledApplication uiApp, string tabName)
         {
+            
+
             Debug.WriteLine("RebarPanel started...");
             string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Армирование" : "Reinforcement";
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
-            SplitButton areaRebarSplitButton = panel
-                .AddItem(new SplitButtonData("AreaRebarSplitButton", "Фоновое"))
-                as SplitButton;
-
-            areaRebarSplitButton.AddPushButton(CreateButtonData("RevitAreaReinforcement", "CommandCreateAreaRebar"));
-            areaRebarSplitButton.AddPushButton(CreateButtonData("RevitAreaReinforcement", "CommandCreateFloorRebar"));
-            areaRebarSplitButton.AddSeparator();
-            areaRebarSplitButton.AddPushButton(CreateButtonData("RevitAreaReinforcement", "CommandRestoreRebarArea"));
-
-            panel.AddSeparator();
 
             panel.AddItem(CreateButtonData("RebarVisibility", "Command"));
 
-            PushButtonData dataAreaMark = CreateButtonData("AreaRebarMark", "CommandManualStart");
+            panel.AddSeparator();
+
+            panel.AddItem(CreateButtonData("RevitAreaReinforcement", "CommandCreateAreaRebar"));
+            panel.AddItem(CreateButtonData("RevitAreaReinforcement", "CommandCreateFloorRebar"));
+
+            PushButtonData dataFixRebar = CreateButtonData("RevitAreaReinforcement", "CommandRestoreRebarArea");
             PushButtonData dataHideRebars = CreateButtonData("RebarPresentation", "Command");
             PushButtonData dataExplodeRebars = CreateButtonData("ExplodeRebarSet", "CommandExplode");
-            panel.AddStackedItems(dataAreaMark, dataHideRebars, dataExplodeRebars);
+            panel.AddStackedItems(dataFixRebar, dataHideRebars, dataExplodeRebars);
+
+            panel.AddSlideOut();
+            panel.AddItem(CreateButtonData("AreaRebarMark", "CommandManualStart"));
             Debug.WriteLine("RebarPanel is created");
         }
 
@@ -168,23 +170,18 @@ namespace RibbonBimStarter
             string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Таблицы" : "Schedules";
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
 
-            PushButtonData dataRebarSketch = CreateButtonData("RebarSketch", "CommandCreatePictures3");
-            panel.AddItem(dataRebarSketch);
+            panel.AddItem(CreateButtonData("RebarSketch", "CommandCreatePictures3"));
 
-            PushButtonData dataAutonumber = CreateButtonData("Autonumber", "CommandStart");
-            panel.AddItem(dataAutonumber);
+            panel.AddItem(CreateButtonData("CollapseRebarSchedule", "Command"));
 
-            PushButtonData dataCollapseRebarSchedule = CreateButtonData("CollapseRebarSchedule", "Command");
-            panel.AddItem(dataCollapseRebarSchedule);
-
-            PushButtonData pbdRefreshSchedules = CreateButtonData("BatchPrintYay", "CommandRefreshSchedules");
-            PushButtonData dataSchedulesTable = CreateButtonData("SchedulesTable", "CommandCreateTable");
-            PushButtonData dataRevisions = CreateButtonData("RevisionClouds", "Command");
-            panel.AddStackedItems(pbdRefreshSchedules, dataSchedulesTable, dataRevisions);
+            panel.AddStackedItems(
+                CreateButtonData("BatchPrintYay", "CommandRefreshSchedules"),
+                CreateButtonData("SchedulesTable", "CommandCreateTable"),
+                CreateButtonData("Autonumber", "CommandStart"));
 
             panel.AddSlideOut();
-            PushButtonData dataScetchConstructor = CreateButtonData("RebarSketch", "CommandFormGenerator");
-            panel.AddItem(dataScetchConstructor);
+            panel.AddItem(CreateButtonData("RebarSketch", "CommandFormGenerator"));
+            panel.AddItem(CreateButtonData("RevisionClouds", "Command"));
             Debug.WriteLine("TablePanel is created");
         }
 
@@ -201,24 +198,17 @@ namespace RibbonBimStarter
             PushButtonData pbdColorize = CreateButtonData("RevitViewFilters", "CommandViewColoring");
             panel.AddItem(pbdColorize);
 
-
-            PushButtonData pbdWallHatch = CreateButtonData("RevitViewFilters", "CommandWallHatch");
             PushButtonData pbdOverrides = CreateButtonData("RevitGraphicsOverride", "Command");
-
-            SplitButtonData sbdFilters = new SplitButtonData("SplitButtonViewFilters", "Фильтры графики");
-
-            IList<RibbonItem> filterItems = panel.AddStackedItems(pbdOverrides, pbdWallHatch, sbdFilters);
-
-            SplitButton sbFilters = filterItems[2] as SplitButton;
-            PushButtonData pbdCreateFilters = CreateButtonData("RevitViewFilters", "CommandCreate");
-            sbFilters.AddPushButton(pbdCreateFilters);
-            PushButtonData pbdDeleteFilters = CreateButtonData("RevitViewFilters", "CommandBatchDelete");
-            sbFilters.AddPushButton(pbdDeleteFilters);
-
             PushButtonData pbdOpenSheets = CreateButtonData("OpenSheets", "Command");
             PushButtonData pbdViewNumbers = CreateButtonData("SuperSetNumber", "Command");
-            PushButtonData pbdTemplates = CreateButtonData("ViewTemplateUtils", "CommandCopyTemplate");
-            panel.AddStackedItems(pbdOpenSheets, pbdViewNumbers, pbdTemplates);
+            panel.AddStackedItems(pbdOverrides, pbdOpenSheets, pbdViewNumbers);
+
+            panel.AddSlideOut();
+            panel.AddItem(CreateButtonData("RevitViewFilters", "CommandWallHatch"));
+            panel.AddItem(CreateButtonData("RevitViewFilters", "CommandCreate"));
+            panel.AddItem(CreateButtonData("RevitViewFilters", "CommandBatchDelete"));
+            panel.AddItem(CreateButtonData("ViewTemplateUtils", "CommandCopyTemplate"));
+
             Debug.WriteLine("ViewPanel is created");
         }
 
@@ -229,46 +219,27 @@ namespace RibbonBimStarter
             string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Моделирование" : "Modeling";
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
 
-            SplitButton splitHolesElev = panel
-                .AddItem(new SplitButtonData("HolesElevSplitButton", "Отверстия"))
-                as SplitButton;
-            PushButtonData pbdElevations = CreateButtonData("RevitElementsElevation", "Command");
-            splitHolesElev.AddPushButton(pbdElevations);
-
-            splitHolesElev.AddSeparator();
-            PushButtonData pbdHolesSettings = CreateButtonData("RevitElementsElevation", "CommandConfig");
-            splitHolesElev.AddPushButton(pbdHolesSettings);
-
-            PushButtonData pbdPropertiesCopy = CreateButtonData("PropertiesCopy", "CommandPropertiesCopy");
-            panel.AddItem(pbdPropertiesCopy);
-
-            PushButtonData pbdGroupedAssembly = CreateButtonData("GroupedAssembly", "CommandSuperAssembly");
-            panel.AddItem(pbdGroupedAssembly);
-
-            //PushButtonData pbd = CreateButtonData("", "");
 
             SplitButton splitJoin = panel
                 .AddItem(new SplitButtonData("JoingeometrySplitButton", "Геометрия"))
                 as SplitButton;
 
-            PushButtonData pbdAutoJoin = CreateButtonData("AutoJoin", "CommandAutoJoin");
-            splitJoin.AddPushButton(pbdAutoJoin);
-
-            PushButtonData pbdJoinByOrder = CreateButtonData("AutoJoin", "CommandJoinByOrder");
-            splitJoin.AddPushButton(pbdJoinByOrder);
-
-            PushButtonData pbdAutoUnjoin = CreateButtonData("AutoJoin", "CommandBatchUnjoin");
-            splitJoin.AddPushButton(pbdAutoUnjoin);
-
-            PushButtonData pbdAutoCut = CreateButtonData("AutoJoin", "CommandAutoCut");
-            splitJoin.AddPushButton(pbdAutoCut);
+            splitJoin.AddPushButton(CreateButtonData("AutoJoin", "CommandAutoJoin"));
+            splitJoin.AddPushButton(CreateButtonData("AutoJoin", "CommandJoinByOrder"));
+            splitJoin.AddPushButton(CreateButtonData("AutoJoin", "CommandBatchUnjoin"));
+            splitJoin.AddPushButton(CreateButtonData("AutoJoin", "CommandAutoCut"));
             splitJoin.AddPushButton(CreateButtonData("AutoJoin", "CommandCreateCope"));
 
             
-            PushButtonData pbdHost = CreateButtonData("PropertiesCopy", "CommandSelectHost");
             SplitButtonData sbdPiles = new SplitButtonData("Piles", "Сваи");
-            IList<RibbonItem> stacked1 = panel.AddStackedItems(pbdHost, sbdPiles);
-            
+
+
+            IList<RibbonItem> stacked1 = panel.AddStackedItems(
+                CreateButtonData("GroupedAssembly", "CommandSuperAssembly"),
+                sbdPiles,
+                CreateButtonData("PropertiesCopy", "CommandPropertiesCopy")
+            );
+
             SplitButton splitPiles = stacked1[1] as SplitButton;
             splitPiles.AddPushButton(CreateButtonData("PilesCoords", "PilesNumberingCommand"));
             splitPiles.AddPushButton(CreateButtonData("PilesCoords", "PileCutCommand"));
@@ -279,6 +250,66 @@ namespace RibbonBimStarter
             Debug.WriteLine("ModelingPanel is created");
         }
 
+        private void CreateParametrisationRibbon(UIControlledApplication uiApp, string tabName)
+        {
+            Debug.WriteLine("ParametrisationPanel started...");
+
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Параметризация" : "Parametrisation";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
+
+            SplitButton splitHolesElev = panel
+                .AddItem(new SplitButtonData("HolesElevSplitButton", "Отверстия"))
+                as SplitButton;
+            splitHolesElev.AddPushButton(CreateButtonData("RevitElementsElevation", "Command"));
+
+            splitHolesElev.AddSeparator();
+            splitHolesElev.AddPushButton(CreateButtonData("RevitElementsElevation", "CommandConfig"));
+
+#if R2017 || R2018
+            IList<RibbonItem> stacked = panel.AddStackedItems(
+                CreateButtonData("ArchParametrisation", "CmdArchParametrisation"),
+                CreateButtonData("ColumnsParametrisation", "Command")
+            );
+#else
+            IList<RibbonItem> stacked = panel.AddStackedItems(
+                CreateButtonData("ArchParametrisation", "CmdArchParametrisation"),
+                CreateButtonData("RevitPlatesWeight", "Command"),
+                CreateButtonData("ColumnsParametrisation", "Command")
+            );
+#endif
+
+
+
+            Debug.WriteLine("ParametrisationPanel is created");
+        }
+
+        private void CreateInstrumentsRibbon(UIControlledApplication uiApp, string tabName)
+        {
+            Debug.WriteLine("InstrumentsPanel started...");
+
+            string panelTitle = App.curUiLanguage == LanguageType.Russian ? "Инструменты" : "Instruments";
+            RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
+
+            panel.AddItem(CreateButtonData("PropertiesCopy", "CommandSelectHost"));
+            panel.AddItem(CreateButtonData("RevitWorksets", "Command"));
+
+            /*string libraryButtonTitle = App.curUiLanguage == LanguageType.Russian ? "Семейства" : "Families";
+            PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", libraryButtonTitle, assemblyPath, "RibbonBimStarter.CommandShowPane");
+            pbdFamiliesLibrary.ToolTip = App.curUiLanguage == LanguageType.Russian ? "Открыть палитру библиотеки семейств" : "Open family library palette";
+            string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "FamilyLibrary_data");
+            pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_large.png")));
+            pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_small.png")));*/
+
+            SplitButton splitFamilies = panel
+                .AddItem(new SplitButtonData("HolesElevSplitButton", "Отверстия"))
+                as SplitButton;
+            splitFamilies.AddPushButton(CreateButtonData("RibbonBimStarter", "CommandShowPane"));
+            splitFamilies.AddPushButton(CreateButtonData("RibbonBimStarter", "CommandCheckFamilies"));
+
+
+
+            Debug.WriteLine("InstrumentsPanel is created");
+        }
 
         private void CreateMasterRibbon(UIControlledApplication uiApp, string tabName)
         {
@@ -288,42 +319,29 @@ namespace RibbonBimStarter
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
 
             SplitButtonData sbdAddParams = new SplitButtonData("FamilyParametersSplitButton", "Добавить параметры");
-            PushButtonData pbdClearGuids = CreateButtonData("ClearUnusedGUIDs", "CommandClear");
-            PushButtonData pbdFixSlowFile = CreateButtonData("FixSlowFile", "Command");
-            IList<RibbonItem> stacked1 = panel.AddStackedItems(sbdAddParams, pbdClearGuids, pbdFixSlowFile);
+            PushButtonData fixSlowFileData = CreateButtonData("FixSlowFile", "Command");
+            SplitButtonData sbdParametrization = new SplitButtonData("ModelParametrizationSplitButton", "Параметризация");
+            IList<RibbonItem> stacked = panel.AddStackedItems(sbdAddParams, fixSlowFileData, sbdParametrization);
 
-            SplitButton splitFamParam = stacked1[0] as SplitButton;
+            SplitButton splitFamParam = stacked[0] as SplitButton;
             splitFamParam.AddPushButton(CreateButtonData("ClearUnusedGUIDs", "CommandAddParameters"));
             splitFamParam.AddPushButton(CreateButtonData("ClearUnusedGUIDs", "CommandAddParamsByAnalog"));
 
-
-
-            SplitButtonData sbdParametrization = new SplitButtonData("ModelParametrizationSplitButton", "Параметризация");
-            PushButtonData pbdWorksets = CreateButtonData("RevitWorksets", "Command");
-            SplitButtonData sbdFamilies = new SplitButtonData("FamiliesSplitButton", "Библиотека семейств");
-
-            IList<RibbonItem> stacked2 = panel.AddStackedItems(sbdParametrization, pbdWorksets, sbdFamilies);
-
-            SplitButton splitParametrization = stacked2[0] as SplitButton;
+            SplitButton splitParametrization = stacked[2] as SplitButton;
             splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("ParameterWriter", "CommandWriteView"));
             splitParametrization.AddPushButton(CreateButtonData("RebarParametrisation", "Command"));
             splitParametrization.AddPushButton(CreateButtonData("WriteParametersFormElemsToParts", "CommandWriteParam"));
-            if (revitVersion != "2017" && revitVersion != "2018")
-            {
-                splitParametrization.AddPushButton(CreateButtonData("RevitPlatesWeight", "Command"));
-            }
+            
             splitParametrization.AddPushButton(CreateButtonData("IngradParametrisation", "Cmd"));
-            splitParametrization.AddPushButton(CreateButtonData("ColumnsParametrisation", "Command"));
 
-            string libraryButtonTitle = App.curUiLanguage == LanguageType.Russian ? "Семейства" : "Families";
-            PushButtonData pbdFamiliesLibrary = new PushButtonData("ShowFamiliesCatalog", libraryButtonTitle, assemblyPath, "RibbonBimStarter.CommandShowPane");
-            pbdFamiliesLibrary.ToolTip = App.curUiLanguage == LanguageType.Russian ? "Открыть палитру библиотеки семейств" : "Open family library palette";
-            string famLibIconsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), "FamilyLibrary_data");
-            pbdFamiliesLibrary.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_large.png")));
-            pbdFamiliesLibrary.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyLibrary_small.png")));
 
-            string checkProjectButtonTitle = App.curUiLanguage == LanguageType.Russian ? "Проверить проект" : "Check project";
+            panel.AddSlideOut();
+            panel.AddItem(CreateButtonData("ClearUnusedGUIDs", "CommandClear"));
+            panel.AddItem(CreateButtonData("RibbonBimStarter", "CommandUploadFamily"));
+
+
+            /* string checkProjectButtonTitle = App.curUiLanguage == LanguageType.Russian ? "Проверить проект" : "Check project";
             PushButtonData pbdCheckFamilies = new PushButtonData("CheckFamilies", checkProjectButtonTitle, assemblyPath, "RibbonBimStarter.CommandCheckFamilies");
             pbdCheckFamilies.ToolTip = App.curUiLanguage == LanguageType.Russian 
                 ? "Проверить проект на наличие устаревших, дублированных, сторонних и неверно названных семейств"
@@ -337,14 +355,15 @@ namespace RibbonBimStarter
             pbdUploadFamily.ToolTip = App.curUiLanguage == LanguageType.Russian ? "Загрузить семейство в библиотеку" : "Load a family to the library";
             pbdUploadFamily.LargeImage = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyUpload_large.png")));
             pbdUploadFamily.Image = new BitmapImage(new Uri(Path.Combine(famLibIconsPath, "FamilyUpload_small.png")));
+            */
 
             //PushButtonData pbdFamilySettings = new PushButtonData("FamilySettings", "Настройки", assemblyPath, "RibbonBimStarter.CommandFamilySettings");
             //pbdFamilySettings.ToolTip = "Настройки библиотеки семейств";
 
-            SplitButton splitFamilies = stacked2[2] as SplitButton;
-            splitFamilies.AddPushButton(pbdFamiliesLibrary);
-            splitFamilies.AddPushButton(pbdCheckFamilies);
-            splitFamilies.AddPushButton(pbdUploadFamily);
+            //SplitButton splitFamilies = stacked2[1] as SplitButton;
+            //splitFamilies.AddPushButton(pbdFamiliesLibrary);
+            //splitFamilies.AddPushButton(pbdCheckFamilies);
+            //splitFamilies.AddPushButton(pbdUploadFamily);
             //splitFamilies.AddPushButton(pbdFamilySettings);
 
 
