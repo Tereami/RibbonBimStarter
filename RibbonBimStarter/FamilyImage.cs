@@ -35,6 +35,7 @@ namespace RibbonBimStarter
                 t.Start("Создание вида для экспорта");
 
                 View view = null;
+                bool isAnnotationFamily = false;
                 try
                 {
                     view = Create3DView(FamilyDoc, "EXPORT");
@@ -42,6 +43,7 @@ namespace RibbonBimStarter
                 catch
                 {
                     view = GetAnyView(FamilyDoc);
+                    isAnnotationFamily = true;
                 }
 
                 if (view == null)
@@ -52,7 +54,21 @@ namespace RibbonBimStarter
                     view.DisplayStyle = DisplayStyle.ShadingWithEdges;
                     view.Scale = 1;
                     view.DetailLevel = ViewDetailLevel.Fine;
-                    view.AreAnnotationCategoriesHidden = true;
+                }
+                catch { }
+
+                try
+                {
+                    if (isAnnotationFamily)
+                    {
+                        view.SetCategoryHidden(new ElementId(BuiltInCategory.OST_Dimensions), true);
+                        view.SetCategoryHidden(new ElementId(BuiltInCategory.OST_ReferenceLines), true);
+                        view.SetCategoryHidden(new ElementId(BuiltInCategory.OST_CLines), true);
+                    }
+                    else
+                    {
+                        view.AreAnnotationCategoriesHidden = true;
+                    }
                 }
                 catch { }
 
@@ -66,17 +82,31 @@ namespace RibbonBimStarter
                 }
                 catch { }
 
+
                 try
                 {
-                    List<ElementId> ids = new FilteredElementCollector(FamilyDoc)
+                    List<CurveElement> lines = new FilteredElementCollector(FamilyDoc)
                         .OfCategory(BuiltInCategory.OST_Lines)
+                        .OfClass(typeof(CurveElement))
                         .WhereElementIsNotElementType()
-                        .ToElementIds()
+                        .Cast<CurveElement>()
                         .ToList();
-                    FamilyDoc.Delete(ids);
-                }
-                catch { }
 
+                    List<ElementId> lineIds = new List<ElementId>();
+                    foreach (CurveElement line in lines)
+                    {
+                        if (line.CurveElementType == CurveElementType.ModelCurve
+                            || line.CurveElementType == CurveElementType.ReferenceLine)
+                        {
+                            lineIds.Add(line.Id);
+                        }
+                    }
+                    FamilyDoc.Delete(lineIds);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
 
                 t.Commit();
 
@@ -106,6 +136,22 @@ namespace RibbonBimStarter
 
                 string viewTypename = FamilyDoc.GetElement(view.GetTypeId()).Name;
                 string imagepathjpg = Path.Combine(folder, name + " - " + viewTypename + " - " + view.Name + ".jpg");
+
+                if (!System.IO.File.Exists(imagepathjpg))
+                {
+                    if (!System.IO.Directory.Exists(folder))
+                        throw new Exception("No folder " + folder);
+                    string[] files = System.IO.Directory.GetFiles(folder);
+                    foreach (string file in files)
+                    {
+                        string shortname = System.IO.Path.GetFileName(file);
+                        if (shortname.StartsWith(name))
+                        {
+                            imagepathjpg = file;
+                            break;
+                        }
+                    }
+                }
 
                 return imagepathjpg;
             }
