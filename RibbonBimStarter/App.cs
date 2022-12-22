@@ -128,7 +128,7 @@ namespace RibbonBimStarter
 
             string panelTitle = App.curUiLanguage == LanguageType.Russian ? "О программе" : "About";
             RibbonPanel panel = uiApp.CreateRibbonPanel(tabName, panelTitle);
-            panel.AddItem(CreateButtonData("AboutWeandrevit", "CommandAbout2"));
+            panel.AddItem(CreateButtonData("AboutBimstarter", "CommandAbout"));
             //panel.AddItem(CreateButtonData("AskBimQuestion", "CommandAskBimQuestion"));
             Debug.WriteLine("AboutPanel is created");
         }
