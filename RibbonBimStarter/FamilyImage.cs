@@ -35,7 +35,7 @@ namespace RibbonBimStarter
                 t.Start("Создание вида для экспорта");
 
                 View view = null;
-                bool isAnnotationFamily = false;
+                bool is2Dfamily = false;
                 try
                 {
                     view = Create3DView(FamilyDoc, "EXPORT");
@@ -43,7 +43,7 @@ namespace RibbonBimStarter
                 catch
                 {
                     view = GetAnyView(FamilyDoc);
-                    isAnnotationFamily = true;
+                    is2Dfamily = true;
                 }
 
                 if (view == null)
@@ -52,14 +52,14 @@ namespace RibbonBimStarter
                 try
                 {
                     view.DisplayStyle = DisplayStyle.ShadingWithEdges;
-                    view.Scale = 1;
+                    view.Scale = 5;
                     view.DetailLevel = ViewDetailLevel.Fine;
                 }
                 catch { }
 
                 try
                 {
-                    if (isAnnotationFamily)
+                    if (is2Dfamily)
                     {
                         view.SetCategoryHidden(new ElementId(BuiltInCategory.OST_Dimensions), true);
                         view.SetCategoryHidden(new ElementId(BuiltInCategory.OST_ReferenceLines), true);
@@ -83,30 +83,34 @@ namespace RibbonBimStarter
                 catch { }
 
 
-                try
+                if (!is2Dfamily)
                 {
-                    List<CurveElement> lines = new FilteredElementCollector(FamilyDoc)
-                        .OfCategory(BuiltInCategory.OST_Lines)
-                        .OfClass(typeof(CurveElement))
-                        .WhereElementIsNotElementType()
-                        .Cast<CurveElement>()
-                        .ToList();
-
-                    List<ElementId> lineIds = new List<ElementId>();
-                    foreach (CurveElement line in lines)
+                    try
                     {
-                        if (line.CurveElementType == CurveElementType.ModelCurve
-                            || line.CurveElementType == CurveElementType.ReferenceLine)
+                        List<CurveElement> lines = new FilteredElementCollector(FamilyDoc)
+                            .OfCategory(BuiltInCategory.OST_Lines)
+                            .OfClass(typeof(CurveElement))
+                            .WhereElementIsNotElementType()
+                            .Cast<CurveElement>()
+                            .ToList();
+
+                        List<ElementId> lineIds = new List<ElementId>();
+                        foreach (CurveElement line in lines)
                         {
-                            lineIds.Add(line.Id);
+                            if (line.CurveElementType == CurveElementType.ModelCurve
+                                || line.CurveElementType == CurveElementType.ReferenceLine)
+                            {
+                                lineIds.Add(line.Id);
+                            }
                         }
+                        FamilyDoc.Delete(lineIds);
                     }
-                    FamilyDoc.Delete(lineIds);
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                }
+                
 
                 t.Commit();
 
