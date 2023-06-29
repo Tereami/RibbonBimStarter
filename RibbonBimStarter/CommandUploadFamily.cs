@@ -47,7 +47,7 @@ namespace RibbonBimStarter
             Document famdoc = commandData.Application.Application.OpenDocumentFile(rfapath);
 
             Family ownfam = famdoc.OwnerFamily;
-            string categoryId = ownfam.FamilyCategoryId.IntegerValue.ToString();
+            string categoryId = ownfam.FamilyCategoryId.GetValue().ToString();
             string hostId = FamilyFileInfo.GetHostTypeId(ownfam).ToString();
 
             WebConnection connect = new WebConnection(App.settings.Email, App.settings.Password, App.settings.Website);
@@ -344,12 +344,13 @@ namespace RibbonBimStarter
                     FamilyParameter versionParam = null;
                     if (uploadOption == UploadOption.FirstLoad)
                     {
-#if R2022 || R2023
-                        guidParam = fman.AddParameter("RBS_GUID", GroupTypeId.IdentityData, SpecTypeId.String.Text, false);  
-                        versionParam = fman.AddParameter("RBS_VERSION", GroupTypeId.IdentityData, SpecTypeId.String.Text, false);
-#else
+
+#if R2017 || R2018 || R2019 || R2020 || R2021
                         guidParam = fman.AddParameter("RBS_GUID", BuiltInParameterGroup.PG_IDENTITY_DATA, ParameterType.Text, false);
                         versionParam = fman.AddParameter("RBS_VERSION", BuiltInParameterGroup.PG_IDENTITY_DATA, ParameterType.Integer, false);
+#else
+                        guidParam = fman.AddParameter("RBS_GUID", GroupTypeId.IdentityData, SpecTypeId.String.Text, false);
+                        versionParam = fman.AddParameter("RBS_VERSION", GroupTypeId.IdentityData, SpecTypeId.String.Text, false);
 #endif
                     }
                     else

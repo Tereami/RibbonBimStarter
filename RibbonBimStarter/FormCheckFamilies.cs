@@ -44,7 +44,7 @@ namespace RibbonBimStarter
 
             foreach (Family fam in _invalidFamilies)
             {
-                string[] values = new[] { fam.Id.IntegerValue.ToString(), fam.Name };
+                string[] values = new[] { fam.Id.GetValue().ToString(), fam.Name };
                 ListViewItem item = new ListViewItem(values);
                 listViewInvalidFamilies.Items.Add(item);
             }

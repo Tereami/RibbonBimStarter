@@ -33,9 +33,9 @@ namespace RibbonBimStarter
                 .OfClass(typeof(FamilyInstance))
                 .Cast<FamilyInstance>()
                 .Select(i => i.Symbol.Family)
-                .GroupBy(i => i.Id.IntegerValue)
+                .GroupBy(i => i.Id.GetValue())
                 .Select(grp => grp.FirstOrDefault())
-                .OrderBy(i => i.Id.IntegerValue)
+                .OrderBy(i => i.Id.GetValue())
                 .ToList();
 
             Dictionary<string, List<Family>> guidsAndFamilies = new Dictionary<string, List<Family>>();
@@ -109,7 +109,7 @@ namespace RibbonBimStarter
                 string famNameByServer = info.shortinfo.GetFamilyName();
                 if (famnameInProject != famNameByServer)
                 {
-                    incorrectNames.Add(new[] { fam.Id.IntegerValue.ToString(), famnameInProject, famNameByServer, kvp.Key });
+                    incorrectNames.Add(new[] { fam.Id.GetValue().ToString(), famnameInProject, famNameByServer, kvp.Key });
                 }
                 IEnumerable<ElementId> symbIds = fam.GetFamilySymbolIds();
                 if (symbIds.Count() == 0)
@@ -125,7 +125,7 @@ namespace RibbonBimStarter
                 {
                     string[] obsoleteInfo = new[]
                     {
-                        fam.Id.IntegerValue.ToString(),
+                        fam.Id.GetValue().ToString(),
                         fam.Name,
                         versionInProject.ToString(),
                         versionInLibrary.ToString(),
