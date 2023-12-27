@@ -45,6 +45,7 @@ namespace RibbonBimStarter
             Debug.Listeners.Clear();
             Debug.Listeners.Add(new Logger("Ribbon"));
             Debug.WriteLine("Revit start");
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
             assemblyPath = typeof(App).Assembly.Location;
             assemblyFolder = Path.GetDirectoryName(assemblyPath);
             string appdataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
