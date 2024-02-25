@@ -55,7 +55,6 @@ namespace RibbonBimStarter
                 familyFileInfo.Description = clearDesc;
 
 
-
                 familyFileInfo.HostType = "Тип основы: " + fsi.host;
                 familyFileInfo.HostShortName = fsi.hostshortname;
                 familyFileInfo.CategoryName = fsi.category;
