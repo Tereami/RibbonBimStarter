@@ -50,7 +50,12 @@ namespace RibbonBimStarter
                 familyFileInfo.Title = fsi.name;
                 familyFileInfo.ImagePath = App.settings.Website + "img/families/" + fsi.guid + "_small.jpg";
                 familyFileInfo.ImageBigPath = App.settings.Website + "img/families/" + fsi.guid + ".jpg";
-                familyFileInfo.Description = fsi.description;
+
+                string clearDesc = fsi.description.Replace("&#34;", "\"");
+                familyFileInfo.Description = clearDesc;
+
+
+
                 familyFileInfo.HostType = "Тип основы: " + fsi.host;
                 familyFileInfo.HostShortName = fsi.hostshortname;
                 familyFileInfo.CategoryName = fsi.category;
